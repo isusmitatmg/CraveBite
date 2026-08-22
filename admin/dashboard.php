@@ -1,15 +1,18 @@
-
 <?php
 
 session_start();
 
 include "../config/db.php";
 
+// Check admin access
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
+
     header("Location: ../login.php");
     exit();
 }
 
+
+// Update order status
 if (isset($_POST['update_status'])) {
 
     $order_id = intval($_POST['order_id']);
@@ -39,7 +42,6 @@ if (isset($_POST['update_status'])) {
         );
 
         mysqli_stmt_execute($stmt);
-
         mysqli_stmt_close($stmt);
     }
 
@@ -47,6 +49,10 @@ if (isset($_POST['update_status'])) {
     exit();
 }
 
+
+// Dashboard statistics
+
+// Total customers
 $result = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total
@@ -57,6 +63,8 @@ $result = mysqli_query(
 $customer_data = mysqli_fetch_assoc($result);
 $total_customers = $customer_data['total'] ?? 0;
 
+
+// Total food items
 $result = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total
@@ -66,6 +74,8 @@ $result = mysqli_query(
 $food_data = mysqli_fetch_assoc($result);
 $total_food = $food_data['total'] ?? 0;
 
+
+// Total orders
 $result = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total
@@ -75,6 +85,8 @@ $result = mysqli_query(
 $order_data = mysqli_fetch_assoc($result);
 $total_orders = $order_data['total'] ?? 0;
 
+
+// Pending orders
 $result = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total
@@ -85,6 +97,8 @@ $result = mysqli_query(
 $pending_data = mysqli_fetch_assoc($result);
 $pending_orders = $pending_data['total'] ?? 0;
 
+
+// Total revenue
 $result = mysqli_query(
     $conn,
     "SELECT SUM(total_price) AS revenue
@@ -95,6 +109,8 @@ $result = mysqli_query(
 $revenue_data = mysqli_fetch_assoc($result);
 $total_revenue = $revenue_data['revenue'] ?? 0;
 
+
+// Get recent orders
 $recent_orders = mysqli_query(
     $conn,
     "SELECT
@@ -125,7 +141,6 @@ if (!$recent_orders) {
 ?>
 
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -158,43 +173,34 @@ if (!$recent_orders) {
             color: #333;
         }
 
-        
 
         .dashboard {
             display: flex;
             min-height: 100vh;
         }
 
-        
+
+        /* Sidebar */
 
         .sidebar {
             position: fixed;
             left: 0;
             top: 0;
-
             width: 245px;
             height: 100vh;
-
             background: #ffffff;
-
             border-right: 1px solid #eeeeee;
-
             display: flex;
             flex-direction: column;
-
             z-index: 100;
         }
 
-        
 
         .logo {
             height: 85px;
-
             display: flex;
             align-items: center;
-
             padding: 0 28px;
-
             border-bottom: 1px solid #eeeeee;
         }
 
@@ -208,21 +214,15 @@ if (!$recent_orders) {
             color: #222;
         }
 
-        
 
         .admin-name {
             padding: 18px 28px;
-
             border-bottom: 1px solid #eeeeee;
-
             color: #333;
-
             font-size: 14px;
-
             font-weight: 600;
         }
 
-        
 
         .navigation {
             padding: 25px 15px;
@@ -238,182 +238,134 @@ if (!$recent_orders) {
 
         .navigation a {
             display: block;
-
             padding: 13px 16px;
-
             text-decoration: none;
-
             color: #555;
-
             font-size: 14px;
-
             font-weight: 500;
-
             border-radius: 9px;
-
             transition: all 0.25s ease;
         }
 
         .navigation a:hover {
             background: #fff1e8;
-
             color: #ff6b00;
         }
 
         .navigation .active a {
             background: #ff6b00;
-
             color: #ffffff;
         }
 
-        
 
         .logout {
             margin-top: auto;
-
             padding: 15px;
-
             border-top: 1px solid #eeeeee;
         }
 
         .logout a {
             display: block;
-
             padding: 13px 16px;
-
             text-decoration: none;
-
             color: #555;
-
             font-size: 14px;
-
             border-radius: 9px;
-
             transition: 0.25s;
         }
 
         .logout a:hover {
             background: #fff1e8;
-
             color: #ff6b00;
         }
 
-        
+
+        /* Main content */
 
         .main {
             margin-left: 245px;
-
             width: calc(100% - 245px);
-
             padding: 32px 38px;
         }
 
-        
 
         .header {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             margin-bottom: 30px;
         }
 
         .welcome h1 {
             font-size: 27px;
-
             color: #222;
-
             margin-bottom: 7px;
         }
 
         .welcome p {
             color: #888;
-
             font-size: 14px;
         }
 
-        
 
         .profile {
             background: #ffffff;
-
             padding: 12px 17px;
-
             border: 1px solid #eeeeee;
-
             border-radius: 10px;
         }
 
         .profile-info strong {
             display: block;
-
             font-size: 14px;
-
             color: #222;
         }
 
         .profile-info small {
             color: #999;
-
             font-size: 12px;
         }
 
-        
+
+        /* Statistics */
 
         .stats {
             display: grid;
-
             grid-template-columns: repeat(5, 1fr);
-
             gap: 17px;
-
             margin-bottom: 28px;
         }
 
         .stat-card {
             background: #ffffff;
-
             border: 1px solid #eeeeee;
-
             border-radius: 11px;
-
             padding: 22px;
-
             min-height: 120px;
-
             transition: 0.25s;
         }
 
         .stat-card:hover {
             transform: translateY(-3px);
-
             box-shadow:
                 0 8px 20px rgba(0, 0, 0, 0.06);
         }
 
         .stat-content h4 {
             color: #888;
-
             font-size: 11px;
-
             font-weight: 600;
-
             margin-bottom: 12px;
         }
 
         .stat-content h2 {
             font-size: 26px;
-
             color: #222;
         }
 
-        
 
         .revenue-card {
             background: #ff6b00;
-
             border: none;
         }
 
@@ -422,73 +374,54 @@ if (!$recent_orders) {
             color: #ffffff;
         }
 
-        
+
+        /* Recent orders */
 
         .orders-box {
             background: #ffffff;
-
             border: 1px solid #eeeeee;
-
             border-radius: 12px;
-
             padding: 23px;
-
             width: 100%;
         }
 
         .box-header {
             display: flex;
-
             justify-content: space-between;
-
             align-items: center;
-
             margin-bottom: 20px;
         }
 
         .box-header h2 {
             font-size: 18px;
-
             color: #222;
         }
 
         .view-all {
             text-decoration: none;
-
             color: #ff6b00;
-
             font-size: 13px;
-
             font-weight: 600;
         }
 
-        
 
         .orders-table {
             width: 100%;
-
             border-collapse: collapse;
         }
 
         .orders-table th {
             text-align: left;
-
             font-size: 11px;
-
             color: #999;
-
             font-weight: 600;
-
             padding: 12px 8px;
-
             border-bottom: 1px solid #eeeeee;
         }
 
         .orders-table td {
             padding: 14px 8px;
-
             font-size: 13px;
-
             border-bottom: 1px solid #f2f2f2;
         }
 
@@ -498,68 +431,95 @@ if (!$recent_orders) {
 
         .order-id {
             font-weight: 600;
-
             color: #222;
         }
 
-        
 
         .status {
             display: inline-block;
-
             padding: 5px 9px;
-
             border-radius: 20px;
-
             font-size: 10px;
-
             font-weight: 600;
         }
 
         .status-pending {
             background: #fff4dc;
-
             color: #d58b00;
         }
 
         .status-completed {
             background: #e7f8ee;
-
             color: #1a9b50;
         }
 
         .status-cancelled {
             background: #ffe8e8;
-
             color: #d64545;
         }
 
         .status-default {
             background: #eeeeee;
-
             color: #666;
         }
 
-        
 
         .no-orders {
             text-align: center;
-
             padding: 35px 10px;
-
             color: #999;
-
             font-size: 13px;
         }
 
-        
+
+        .status-form {
+            margin: 0;
+        }
+
+        .status-select {
+            padding: 7px 10px;
+            border-radius: 20px;
+            border: none;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            outline: none;
+            background: #f1f1f1;
+            color: #555;
+        }
+
+        .status-select:hover {
+            opacity: 0.85;
+        }
+
+        .status-select.status-pending {
+            background: #fff4dc;
+            color: #d58b00;
+        }
+
+        .status-select.status-completed {
+            background: #e7f8ee;
+            color: #1a9b50;
+        }
+
+        .status-select.status-cancelled {
+            background: #ffe8e8;
+            color: #d64545;
+        }
+
+        .status-select.status-default {
+            background: #eeeeee;
+            color: #666;
+        }
+
+
+        /* Responsive design */
 
         @media (max-width: 1200px) {
 
             .stats {
                 grid-template-columns: repeat(3, 1fr);
             }
-
         }
 
         @media (max-width: 950px) {
@@ -567,7 +527,6 @@ if (!$recent_orders) {
             .stats {
                 grid-template-columns: repeat(2, 1fr);
             }
-
         }
 
         @media (max-width: 750px) {
@@ -578,25 +537,20 @@ if (!$recent_orders) {
 
             .main {
                 margin-left: 210px;
-
                 width: calc(100% - 210px);
-
                 padding: 25px;
             }
 
             .stats {
                 grid-template-columns: repeat(2, 1fr);
             }
-
         }
 
         @media (max-width: 550px) {
 
             .sidebar {
                 position: relative;
-
                 width: 100%;
-
                 height: auto;
             }
 
@@ -606,7 +560,6 @@ if (!$recent_orders) {
 
             .main {
                 margin-left: 0;
-
                 width: 100%;
             }
 
@@ -616,9 +569,7 @@ if (!$recent_orders) {
 
             .header {
                 flex-direction: column;
-
                 align-items: flex-start;
-
                 gap: 15px;
             }
 
@@ -629,61 +580,7 @@ if (!$recent_orders) {
             .orders-table {
                 min-width: 600px;
             }
-
         }
-        .status-form {
-    margin: 0;
-}
-
-.status-select {
-    padding: 6px 10px;
-    border-radius: 20px;
-    border: none;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    outline: none;
-}
-
-.status-select.status-pending {
-    background: #fff4dc;
-    color: #d58b00;
-}
-
-.status-select.status-completed {
-    background: #e7f8ee;
-    color: #1a9b50;
-}
-
-.status-select.status-cancelled {
-    background: #ffe8e8;
-    color: #d64545;
-}
-
-.status-select.status-default {
-    background: #eeeeee;
-    color: #666;
-}
-
-.status-form {
-    margin: 0;
-}
-
-.status-select {
-    padding: 7px 10px;
-    border-radius: 20px;
-    border: none;
-    font-size: 11px;
-    font-weight: 600;
-    cursor: pointer;
-    outline: none;
-    background: #f1f1f1;
-    color: #555;
-}
-
-.status-select:hover {
-    opacity: 0.85;
-}
 
     </style>
 
@@ -693,11 +590,10 @@ if (!$recent_orders) {
 
 <div class="dashboard">
 
-    
+
+    <!-- Sidebar navigation -->
 
     <aside class="sidebar">
-
-        
 
         <div class="logo">
 
@@ -707,55 +603,44 @@ if (!$recent_orders) {
 
         </div>
 
-        
 
         <div class="admin-name">
             Admin
         </div>
 
-        
 
         <nav class="navigation">
 
             <ul>
 
                 <li class="active">
-
                     <a href="dashboard.php">
                         Dashboard
                     </a>
-
                 </li>
 
                 <li>
-
                     <a href="manage_food.php">
                         Food Management
                     </a>
-
                 </li>
 
                 <li>
-
                     <a href="order.php">
                         Orders
                     </a>
-
                 </li>
 
                 <li>
-
                     <a href="add_category.php">
                         Add Food Category
                     </a>
-
                 </li>
 
             </ul>
 
         </nav>
 
-        
 
         <div class="logout">
 
@@ -767,11 +652,11 @@ if (!$recent_orders) {
 
     </aside>
 
-    
+
+    <!-- Dashboard content -->
 
     <main class="main">
 
-        
 
         <header class="header">
 
@@ -789,11 +674,11 @@ if (!$recent_orders) {
 
         </header>
 
-        
+
+        <!-- Dashboard statistics -->
 
         <section class="stats">
 
-            
 
             <div class="stat-card">
 
@@ -811,7 +696,6 @@ if (!$recent_orders) {
 
             </div>
 
-            
 
             <div class="stat-card">
 
@@ -829,7 +713,6 @@ if (!$recent_orders) {
 
             </div>
 
-            
 
             <div class="stat-card">
 
@@ -847,7 +730,6 @@ if (!$recent_orders) {
 
             </div>
 
-            
 
             <div class="stat-card">
 
@@ -865,7 +747,6 @@ if (!$recent_orders) {
 
             </div>
 
-            
 
             <div class="stat-card revenue-card">
 
@@ -886,7 +767,8 @@ if (!$recent_orders) {
 
         </section>
 
-        
+
+        <!-- Recent orders -->
 
         <section class="orders-box">
 
@@ -905,104 +787,180 @@ if (!$recent_orders) {
 
             </div>
 
+
             <?php if ($recent_orders && mysqli_num_rows($recent_orders) > 0): ?>
 
-<table class="orders-table">
+            <table class="orders-table">
 
-    <thead>
-        <tr>
-            <th>ORDER</th>
-            <th>CUSTOMER</th>
-            <th>PHONE</th>
-            <th>ITEMS</th>
-            <th>AMOUNT</th>
-            <th>STATUS</th>
-            <th>DATE</th>
-        </tr>
-    </thead>
+                <thead>
 
-    <tbody>
+                    <tr>
 
-    <?php while ($order = mysqli_fetch_assoc($recent_orders)): ?>
+                        <th>ORDER</th>
+                        <th>CUSTOMER</th>
+                        <th>PHONE</th>
+                        <th>ITEMS</th>
+                        <th>AMOUNT</th>
+                        <th>STATUS</th>
+                        <th>DATE</th>
 
-        <?php
-            $status = $order['status'] ?? 'Pending';
-            $status_class = 'status-default';
+                    </tr>
 
-            if ($status == 'Pending') {
-                $status_class = 'status-pending';
-            } elseif ($status == 'Completed') {
-                $status_class = 'status-completed';
-            } elseif ($status == 'Cancelled') {
-                $status_class = 'status-cancelled';
-            }
-        ?>
+                </thead>
 
-        <tr>
+                <tbody>
 
-            <td class="order-id">
-                #<?php echo $order['id']; ?>
-            </td>
+                <?php while ($order = mysqli_fetch_assoc($recent_orders)): ?>
 
-            <td>
-                <?php echo htmlspecialchars($order['customer_name']); ?>
-            </td>
+                    <?php
 
-            <td>
-                <?php echo htmlspecialchars($order['phone_number']); ?>
-            </td>
+                        $status = $order['status'] ?? 'Pending';
 
-            <td style="max-width:220px; line-height:1.4;">
-                <?php echo htmlspecialchars($order['food_items'] ?: 'No Items'); ?>
-            </td>
+                        $status_class = 'status-default';
 
-            <td>
-                Rs. <?php echo number_format($order['total_price'], 2); ?>
-            </td>
+                        if ($status == 'Pending') {
 
-            <td>
-                <form method="POST" class="status-form">
+                            $status_class = 'status-pending';
 
-                    <input type="hidden" name="order_id" value="<?php echo $order['id']; ?>">
+                        } elseif ($status == 'Completed') {
 
-                    <select
-                        name="status"
-                        class="status-select <?php echo $status_class; ?>"
-                        onchange="this.form.submit()">
+                            $status_class = 'status-completed';
 
-                        <option value="Pending" <?php echo ($status=='Pending')?'selected':''; ?>>Pending</option>
-                        <option value="Confirmed" <?php echo ($status=='Confirmed')?'selected':''; ?>>Confirmed</option>
-                        <option value="Preparing" <?php echo ($status=='Preparing')?'selected':''; ?>>Preparing</option>
-                        <option value="Ready" <?php echo ($status=='Ready')?'selected':''; ?>>Ready</option>
-                        <option value="Completed" <?php echo ($status=='Completed')?'selected':''; ?>>Completed</option>
-                        <option value="Cancelled" <?php echo ($status=='Cancelled')?'selected':''; ?>>Cancelled</option>
+                        } elseif ($status == 'Cancelled') {
 
-                    </select>
+                            $status_class = 'status-cancelled';
 
-                    <input type="hidden" name="update_status" value="1">
+                        }
 
-                </form>
-            </td>
+                    ?>
 
-            <td>
-                <?php echo date("M d, Y", strtotime($order['order_date'])); ?>
-            </td>
 
-        </tr>
+                    <tr>
 
-    <?php endwhile; ?>
+                        <td class="order-id">
+                            #<?php echo $order['id']; ?>
+                        </td>
 
-    </tbody>
+                        <td>
+                            <?php echo htmlspecialchars($order['customer_name']); ?>
+                        </td>
 
-</table>
+                        <td>
+                            <?php echo htmlspecialchars($order['phone_number']); ?>
+                        </td>
 
-<?php else: ?>
+                        <td style="max-width:220px; line-height:1.4;">
 
-<div class="no-orders">
-    No orders have been placed yet.
-</div>
+                            <?php
+                            echo htmlspecialchars(
+                                $order['food_items'] ?: 'No Items'
+                            );
+                            ?>
 
-<?php endif; ?>
+                        </td>
+
+                        <td>
+                            Rs.
+                            <?php echo number_format($order['total_price'], 2); ?>
+                        </td>
+
+                        <td>
+
+                            <form
+                                method="POST"
+                                class="status-form"
+                            >
+
+                                <input
+                                    type="hidden"
+                                    name="order_id"
+                                    value="<?php echo $order['id']; ?>"
+                                >
+
+                                <select
+                                    name="status"
+                                    class="status-select <?php echo $status_class; ?>"
+                                    onchange="this.form.submit()"
+                                >
+
+                                    <option
+                                        value="Pending"
+                                        <?php echo ($status == 'Pending') ? 'selected' : ''; ?>
+                                    >
+                                        Pending
+                                    </option>
+
+                                    <option
+                                        value="Confirmed"
+                                        <?php echo ($status == 'Confirmed') ? 'selected' : ''; ?>
+                                    >
+                                        Confirmed
+                                    </option>
+
+                                    <option
+                                        value="Preparing"
+                                        <?php echo ($status == 'Preparing') ? 'selected' : ''; ?>
+                                    >
+                                        Preparing
+                                    </option>
+
+                                    <option
+                                        value="Ready"
+                                        <?php echo ($status == 'Ready') ? 'selected' : ''; ?>
+                                    >
+                                        Ready
+                                    </option>
+
+                                    <option
+                                        value="Completed"
+                                        <?php echo ($status == 'Completed') ? 'selected' : ''; ?>
+                                    >
+                                        Completed
+                                    </option>
+
+                                    <option
+                                        value="Cancelled"
+                                        <?php echo ($status == 'Cancelled') ? 'selected' : ''; ?>
+                                    >
+                                        Cancelled
+                                    </option>
+
+                                </select>
+
+                                <input
+                                    type="hidden"
+                                    name="update_status"
+                                    value="1"
+                                >
+
+                            </form>
+
+                        </td>
+
+                        <td>
+                            <?php
+                            echo date(
+                                "M d, Y",
+                                strtotime($order['order_date'])
+                            );
+                            ?>
+                        </td>
+
+                    </tr>
+
+                <?php endwhile; ?>
+
+                </tbody>
+
+            </table>
+
+            <?php else: ?>
+
+                <div class="no-orders">
+                    No orders have been placed yet.
+                </div>
+
+            <?php endif; ?>
 
         </section>
 
