@@ -5,17 +5,10 @@ session_start();
 
 include "../config/db.php";
 
-/* =========================
-   ADMIN ACCESS
-========================= */
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
     header("Location: ../login.php");
     exit();
 }
-/* =========================
-   UPDATE ORDER STATUS
-========================= */
 
 if (isset($_POST['update_status'])) {
 
@@ -54,11 +47,6 @@ if (isset($_POST['update_status'])) {
     exit();
 }
 
-/* =========================
-   DASHBOARD STATISTICS
-========================= */
-
-/* Total Customers */
 $result = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total
@@ -69,8 +57,6 @@ $result = mysqli_query(
 $customer_data = mysqli_fetch_assoc($result);
 $total_customers = $customer_data['total'] ?? 0;
 
-
-/* Total Food */
 $result = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total
@@ -80,8 +66,6 @@ $result = mysqli_query(
 $food_data = mysqli_fetch_assoc($result);
 $total_food = $food_data['total'] ?? 0;
 
-
-/* Total Orders */
 $result = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total
@@ -91,8 +75,6 @@ $result = mysqli_query(
 $order_data = mysqli_fetch_assoc($result);
 $total_orders = $order_data['total'] ?? 0;
 
-
-/* Pending Orders */
 $result = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total
@@ -103,8 +85,6 @@ $result = mysqli_query(
 $pending_data = mysqli_fetch_assoc($result);
 $pending_orders = $pending_data['total'] ?? 0;
 
-
-/* Total Revenue */
 $result = mysqli_query(
     $conn,
     "SELECT SUM(total_price) AS revenue
@@ -115,8 +95,6 @@ $result = mysqli_query(
 $revenue_data = mysqli_fetch_assoc($result);
 $total_revenue = $revenue_data['revenue'] ?? 0;
 
-
-/* Recent Orders */
 $recent_orders = mysqli_query(
     $conn,
     "SELECT
@@ -174,27 +152,20 @@ if (!$recent_orders) {
             box-sizing: border-box;
         }
 
-
         body {
             font-family: Arial, Helvetica, sans-serif;
             background: #f7f7f7;
             color: #333;
         }
 
-
-        /* =========================
-           DASHBOARD
-        ========================= */
+        
 
         .dashboard {
             display: flex;
             min-height: 100vh;
         }
 
-
-        /* =========================
-           SIDEBAR
-        ========================= */
+        
 
         .sidebar {
             position: fixed;
@@ -214,10 +185,7 @@ if (!$recent_orders) {
             z-index: 100;
         }
 
-
-        /* =========================
-           LOGO
-        ========================= */
+        
 
         .logo {
             height: 85px;
@@ -230,22 +198,17 @@ if (!$recent_orders) {
             border-bottom: 1px solid #eeeeee;
         }
 
-
         .logo h2 {
             font-size: 25px;
             color: #ff6b00;
             font-weight: 700;
         }
 
-
         .logo span {
             color: #222;
         }
 
-
-        /* =========================
-           ADMIN
-        ========================= */
+        
 
         .admin-name {
             padding: 18px 28px;
@@ -259,25 +222,19 @@ if (!$recent_orders) {
             font-weight: 600;
         }
 
-
-        /* =========================
-           NAVIGATION
-        ========================= */
+        
 
         .navigation {
             padding: 25px 15px;
         }
 
-
         .navigation ul {
             list-style: none;
         }
 
-
         .navigation li {
             margin-bottom: 7px;
         }
-
 
         .navigation a {
             display: block;
@@ -297,13 +254,11 @@ if (!$recent_orders) {
             transition: all 0.25s ease;
         }
 
-
         .navigation a:hover {
             background: #fff1e8;
 
             color: #ff6b00;
         }
-
 
         .navigation .active a {
             background: #ff6b00;
@@ -311,10 +266,7 @@ if (!$recent_orders) {
             color: #ffffff;
         }
 
-
-        /* =========================
-           LOGOUT
-        ========================= */
+        
 
         .logout {
             margin-top: auto;
@@ -323,7 +275,6 @@ if (!$recent_orders) {
 
             border-top: 1px solid #eeeeee;
         }
-
 
         .logout a {
             display: block;
@@ -341,17 +292,13 @@ if (!$recent_orders) {
             transition: 0.25s;
         }
 
-
         .logout a:hover {
             background: #fff1e8;
 
             color: #ff6b00;
         }
 
-
-        /* =========================
-           MAIN CONTENT
-        ========================= */
+        
 
         .main {
             margin-left: 245px;
@@ -361,10 +308,7 @@ if (!$recent_orders) {
             padding: 32px 38px;
         }
 
-
-        /* =========================
-           HEADER
-        ========================= */
+        
 
         .header {
             display: flex;
@@ -376,7 +320,6 @@ if (!$recent_orders) {
             margin-bottom: 30px;
         }
 
-
         .welcome h1 {
             font-size: 27px;
 
@@ -385,17 +328,13 @@ if (!$recent_orders) {
             margin-bottom: 7px;
         }
 
-
         .welcome p {
             color: #888;
 
             font-size: 14px;
         }
 
-
-        /* =========================
-           PROFILE
-        ========================= */
+        
 
         .profile {
             background: #ffffff;
@@ -407,7 +346,6 @@ if (!$recent_orders) {
             border-radius: 10px;
         }
 
-
         .profile-info strong {
             display: block;
 
@@ -416,17 +354,13 @@ if (!$recent_orders) {
             color: #222;
         }
 
-
         .profile-info small {
             color: #999;
 
             font-size: 12px;
         }
 
-
-        /* =========================
-           STATISTICS
-        ========================= */
+        
 
         .stats {
             display: grid;
@@ -437,7 +371,6 @@ if (!$recent_orders) {
 
             margin-bottom: 28px;
         }
-
 
         .stat-card {
             background: #ffffff;
@@ -453,14 +386,12 @@ if (!$recent_orders) {
             transition: 0.25s;
         }
 
-
         .stat-card:hover {
             transform: translateY(-3px);
 
             box-shadow:
                 0 8px 20px rgba(0, 0, 0, 0.06);
         }
-
 
         .stat-content h4 {
             color: #888;
@@ -472,17 +403,13 @@ if (!$recent_orders) {
             margin-bottom: 12px;
         }
 
-
         .stat-content h2 {
             font-size: 26px;
 
             color: #222;
         }
 
-
-        /* =========================
-           REVENUE
-        ========================= */
+        
 
         .revenue-card {
             background: #ff6b00;
@@ -490,16 +417,12 @@ if (!$recent_orders) {
             border: none;
         }
 
-
         .revenue-card h4,
         .revenue-card h2 {
             color: #ffffff;
         }
 
-
-        /* =========================
-           RECENT ORDERS
-        ========================= */
+        
 
         .orders-box {
             background: #ffffff;
@@ -513,7 +436,6 @@ if (!$recent_orders) {
             width: 100%;
         }
 
-
         .box-header {
             display: flex;
 
@@ -524,13 +446,11 @@ if (!$recent_orders) {
             margin-bottom: 20px;
         }
 
-
         .box-header h2 {
             font-size: 18px;
 
             color: #222;
         }
-
 
         .view-all {
             text-decoration: none;
@@ -542,17 +462,13 @@ if (!$recent_orders) {
             font-weight: 600;
         }
 
-
-        /* =========================
-           TABLE
-        ========================= */
+        
 
         .orders-table {
             width: 100%;
 
             border-collapse: collapse;
         }
-
 
         .orders-table th {
             text-align: left;
@@ -568,7 +484,6 @@ if (!$recent_orders) {
             border-bottom: 1px solid #eeeeee;
         }
 
-
         .orders-table td {
             padding: 14px 8px;
 
@@ -577,11 +492,9 @@ if (!$recent_orders) {
             border-bottom: 1px solid #f2f2f2;
         }
 
-
         .orders-table tr:last-child td {
             border-bottom: none;
         }
-
 
         .order-id {
             font-weight: 600;
@@ -589,10 +502,7 @@ if (!$recent_orders) {
             color: #222;
         }
 
-
-        /* =========================
-           STATUS
-        ========================= */
+        
 
         .status {
             display: inline-block;
@@ -606,13 +516,11 @@ if (!$recent_orders) {
             font-weight: 600;
         }
 
-
         .status-pending {
             background: #fff4dc;
 
             color: #d58b00;
         }
-
 
         .status-completed {
             background: #e7f8ee;
@@ -620,13 +528,11 @@ if (!$recent_orders) {
             color: #1a9b50;
         }
 
-
         .status-cancelled {
             background: #ffe8e8;
 
             color: #d64545;
         }
-
 
         .status-default {
             background: #eeeeee;
@@ -634,10 +540,7 @@ if (!$recent_orders) {
             color: #666;
         }
 
-
-        /* =========================
-           EMPTY ORDERS
-        ========================= */
+        
 
         .no-orders {
             text-align: center;
@@ -649,10 +552,7 @@ if (!$recent_orders) {
             font-size: 13px;
         }
 
-
-        /* =========================
-           RESPONSIVE
-        ========================= */
+        
 
         @media (max-width: 1200px) {
 
@@ -662,7 +562,6 @@ if (!$recent_orders) {
 
         }
 
-
         @media (max-width: 950px) {
 
             .stats {
@@ -671,13 +570,11 @@ if (!$recent_orders) {
 
         }
 
-
         @media (max-width: 750px) {
 
             .sidebar {
                 width: 210px;
             }
-
 
             .main {
                 margin-left: 210px;
@@ -687,13 +584,11 @@ if (!$recent_orders) {
                 padding: 25px;
             }
 
-
             .stats {
                 grid-template-columns: repeat(2, 1fr);
             }
 
         }
-
 
         @media (max-width: 550px) {
 
@@ -705,11 +600,9 @@ if (!$recent_orders) {
                 height: auto;
             }
 
-
             .dashboard {
                 display: block;
             }
-
 
             .main {
                 margin-left: 0;
@@ -717,11 +610,9 @@ if (!$recent_orders) {
                 width: 100%;
             }
 
-
             .stats {
                 grid-template-columns: 1fr;
             }
-
 
             .header {
                 flex-direction: column;
@@ -731,11 +622,9 @@ if (!$recent_orders) {
                 gap: 15px;
             }
 
-
             .orders-box {
                 overflow-x: auto;
             }
-
 
             .orders-table {
                 min-width: 600px;
@@ -800,21 +689,15 @@ if (!$recent_orders) {
 
 </head>
 
-
 <body>
-
 
 <div class="dashboard">
 
-
-    <!-- =========================
-         SIDEBAR
-    ========================= -->
+    
 
     <aside class="sidebar">
 
-
-        <!-- LOGO -->
+        
 
         <div class="logo">
 
@@ -824,15 +707,13 @@ if (!$recent_orders) {
 
         </div>
 
-
-        <!-- ADMIN -->
+        
 
         <div class="admin-name">
             Admin
         </div>
 
-
-        <!-- NAVIGATION -->
+        
 
         <nav class="navigation">
 
@@ -846,7 +727,6 @@ if (!$recent_orders) {
 
                 </li>
 
-
                 <li>
 
                     <a href="manage_food.php">
@@ -854,7 +734,6 @@ if (!$recent_orders) {
                     </a>
 
                 </li>
-
 
                 <li>
 
@@ -876,8 +755,7 @@ if (!$recent_orders) {
 
         </nav>
 
-
-        <!-- LOGOUT -->
+        
 
         <div class="logout">
 
@@ -887,19 +765,13 @@ if (!$recent_orders) {
 
         </div>
 
-
     </aside>
 
-
-
-    <!-- =========================
-         MAIN CONTENT
-    ========================= -->
+    
 
     <main class="main">
 
-
-        <!-- HEADER -->
+        
 
         <header class="header">
 
@@ -917,16 +789,11 @@ if (!$recent_orders) {
 
         </header>
 
-
-
-        <!-- =========================
-             STATISTICS
-        ========================= -->
+        
 
         <section class="stats">
 
-
-            <!-- CUSTOMERS -->
+            
 
             <div class="stat-card">
 
@@ -944,8 +811,7 @@ if (!$recent_orders) {
 
             </div>
 
-
-            <!-- FOOD -->
+            
 
             <div class="stat-card">
 
@@ -963,8 +829,7 @@ if (!$recent_orders) {
 
             </div>
 
-
-            <!-- ORDERS -->
+            
 
             <div class="stat-card">
 
@@ -982,8 +847,7 @@ if (!$recent_orders) {
 
             </div>
 
-
-            <!-- PENDING -->
+            
 
             <div class="stat-card">
 
@@ -1001,8 +865,7 @@ if (!$recent_orders) {
 
             </div>
 
-
-            <!-- REVENUE -->
+            
 
             <div class="stat-card revenue-card">
 
@@ -1021,17 +884,11 @@ if (!$recent_orders) {
 
             </div>
 
-
         </section>
 
-
-
-        <!-- =========================
-             RECENT ORDERS
-        ========================= -->
+        
 
         <section class="orders-box">
-
 
             <div class="box-header">
 
@@ -1047,8 +904,6 @@ if (!$recent_orders) {
                 </a>
 
             </div>
-
-
 
             <?php if ($recent_orders && mysqli_num_rows($recent_orders) > 0): ?>
 
@@ -1149,15 +1004,11 @@ if (!$recent_orders) {
 
 <?php endif; ?>
 
-
         </section>
-
 
     </main>
 
-
 </div>
-
 
 </body>
 
