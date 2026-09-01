@@ -9,9 +9,7 @@ $total = 0;
 $cart_items = [];
 
 
-/* =====================================
-   LOGGED-IN USER CART
-===================================== */
+/* LOGGED-IN USER CART */
 
 if (isset($_SESSION['user_id'])) {
 
@@ -49,9 +47,7 @@ if (isset($_SESSION['user_id'])) {
 }
 
 
-/* =====================================
-   GUEST CART
-===================================== */
+/* GUEST CART */
 
 else {
 
@@ -134,9 +130,7 @@ else {
 <div class="cart-page">
 
 
-    <!-- =========================
-         CART HEADER
-    ========================= -->
+    <!-- CART HEADER-->
 
     <div class="cart-header">
 
@@ -168,9 +162,7 @@ else {
 
 
 
-    <!-- =========================
-         EMPTY CART
-    ========================= -->
+    <!--  EMPTY CART -->
 
     <?php if (empty($cart_items)): ?>
 
@@ -201,16 +193,12 @@ else {
     <?php else: ?>
 
 
-        <!-- =========================
-             CART CONTENT
-        ========================= -->
+        <!-- CART CONTENT-->
 
         <div class="cart-layout">
 
 
-            <!-- =========================
-                 CART ITEMS
-            ========================= -->
+            <!-- CART ITEMS-->
 
             <div class="cart-items">
 
@@ -354,9 +342,7 @@ else {
 
 
 
-            <!-- =========================
-                 ORDER SUMMARY
-            ========================= -->
+            <!-- ORDER SUMMARY -->
 
             <div class="order-summary">
 
@@ -415,9 +401,7 @@ else {
                 </div>
 
 
-                <!-- =========================
-                     CHECKOUT
-                ========================= -->
+                <!--  CHECKOUT-->
 
                 <a
                     href="user/checkout.php"
