@@ -43,9 +43,7 @@ if (mysqli_num_rows($food_result) == 0) {
 
 mysqli_stmt_close($stmt);
 
-/* =========================
-   LOGGED-IN USER
-========================= */
+/* LOGGED-IN USER*/
 
 if (isset($_SESSION['user_id'])) {
 
@@ -115,9 +113,7 @@ if (isset($_SESSION['user_id'])) {
 
 }
 
-/* =========================
-   GUEST USER
-========================= */
+/*  GUEST USER\ */
 
 else {
 
@@ -139,9 +135,7 @@ else {
 
 }
 
-/* =========================
-   AJAX REQUEST
-========================= */
+/* AJAX REQUEST*/
 
 if (
     isset($_SERVER['HTTP_X_REQUESTED_WITH']) &&
