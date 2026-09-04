@@ -1,40 +1,54 @@
 <?php
-
 session_start();
+include "config/db.php";
 
-include "../config/db.php";
+// Cart count
+$cart_count = 0;
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "user") {
-    header("Location: ../login.php");
-    exit();
+if (isset($_SESSION['user_id'])) {
+
+    $user_id = (int)$_SESSION['user_id'];
+
+    $count_query = mysqli_query(
+        $conn,
+        "SELECT SUM(quantity) AS total FROM cart WHERE user_id = $user_id"
+    );
+
+    if ($count_query) {
+        $count = mysqli_fetch_assoc($count_query);
+        $cart_count = (int)($count['total'] ?? 0);
+    }
+
+} elseif (isset($_SESSION['guest_cart'])) {
+
+    $cart_count = array_sum($_SESSION['guest_cart']);
 }
 
-/*
-    Get food and category name together
-*/
-$result = mysqli_query($conn, "
-    SELECT food.*, category.name AS category_name
-    FROM food
-    LEFT JOIN category ON food.category_id = category.id
-");
-
-if (!$result) {
-    die("Food query failed: " . mysqli_error($conn));
-}
-
+// Get food
+$result = mysqli_query(
+    $conn,
+    "SELECT food.*, category.name AS category_name
+     FROM food
+     LEFT JOIN category
+     ON food.category_id = category.id
+     ORDER BY food.id DESC"
+);
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Food Menu | CraveBite</title>
 
-    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="css/style.css">
 
     <style>
 
+        /* Quantity */
         .quantity-box {
             display: flex;
             align-items: center;
@@ -49,9 +63,13 @@ if (!$result) {
             border: none;
             border-radius: 6px;
             background: #f97316;
-            color: white;
+            color: #fff;
             font-size: 18px;
             cursor: pointer;
+        }
+
+        .quantity-box button:hover {
+            background: #ea580c;
         }
 
         .quantity-box input {
@@ -62,6 +80,7 @@ if (!$result) {
             border-radius: 6px;
         }
 
+        /* Food image */
         .food-card img {
             width: 100%;
             height: 180px;
@@ -69,14 +88,55 @@ if (!$result) {
             border-radius: 10px;
         }
 
+        /* Category */
+        .category-name {
+            color: #777;
+            font-size: 14px;
+        }
+
+        /* Price */
+        .food-price {
+            color: #000;
+            margin-top: 10px;
+        }
+
+        .food-price strong {
+            color: #000;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Cart badge */
+        .cart-link {
+            position: relative;
+            display: inline-block;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -6px;
+            right: -10px;
+            min-width: 18px;
+            height: 18px;
+            padding: 0 4px;
+            background: #ef4444;
+            color: #fff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 1;
+            box-shadow: 0 2px 5px rgba(0,0,0,.25);
+        }
+
     </style>
-
 </head>
-
 
 <body>
 
-
+<!-- Navigation -->
 <header>
 
     <nav class="navbar">
@@ -88,28 +148,63 @@ if (!$result) {
         <ul class="nav-links">
 
             <li>
-                <a href="dashboard.php">
-                    Dashboard
-                </a>
+                <a href="index.php">Home</a>
             </li>
 
             <li>
-                <a href="menu.php">
-                    Menu
-                </a>
+                <a href="menu.php">Menu</a>
             </li>
 
+            <?php if (isset($_SESSION['user_id'])): ?>
+
+                <li>
+                    <a href="user/my_order.php">My Orders</a>
+                </li>
+
+            <?php endif; ?>
+
+            <!-- Cart -->
             <li>
-                <a href="cart.php">
+
+                <a href="cart.php" class="cart-link">
+
                     Cart 🛒
+
+                    <span
+                        id="cart-badge"
+                        class="cart-badge"
+                        <?php
+                        if ($cart_count == 0) {
+                            echo 'style="display:none;"';
+                        }
+                        ?>
+                    >
+                        <?php echo $cart_count; ?>
+                    </span>
+
                 </a>
+
             </li>
 
-            <li>
-                <a href="../logout.php">
-                    Logout
-                </a>
-            </li>
+            <?php if (isset($_SESSION['user_id'])): ?>
+
+                <!-- Logged in -->
+                <li>
+                    <a href="logout.php">Logout</a>
+                </li>
+
+            <?php else: ?>
+
+                <!-- Guest -->
+                <li>
+                    <a href="login.php">Login</a>
+                </li>
+
+                <li>
+                    <a href="register.php">Register</a>
+                </li>
+
+            <?php endif; ?>
 
         </ul>
 
@@ -118,62 +213,63 @@ if (!$result) {
 </header>
 
 
+<!-- Food menu -->
 <section class="popular">
 
-    <h2>
-        Our Menu
-    </h2>
+    <h2>Our Menu</h2>
 
+    <p class="section-subtitle">
+        Choose your favorite food and add it to your cart.
+    </p>
+
+    <br>
 
     <div class="food-container">
 
-
-        <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-
+        <?php while ($row = mysqli_fetch_assoc($result)): ?>
 
             <div class="food-card">
 
-
-                <!-- Food Image -->
-
+                <!-- Image -->
                 <img
-                    src="../uploads/<?php echo htmlspecialchars($row['image']); ?>"
+                    src="uploads/<?php echo htmlspecialchars($row['image']); ?>"
                     alt="<?php echo htmlspecialchars($row['name']); ?>"
                 >
 
-
-                <!-- Food Name -->
-
+                <!-- Name -->
                 <h3>
                     <?php echo htmlspecialchars($row['name']); ?>
                 </h3>
 
-
                 <!-- Description -->
-
                 <p>
                     <?php echo htmlspecialchars($row['description']); ?>
                 </p>
 
-
                 <!-- Category -->
-
-                <p>
+                <p class="category-name">
                     Category:
-                    <?php echo htmlspecialchars($row['category_name']); ?>
+                    <?php
+                    echo htmlspecialchars(
+                        $row['category_name'] ?? 'Uncategorized'
+                    );
+                    ?>
                 </p>
 
-
                 <!-- Price -->
+                <p class="food-price">
+                    <br>
 
-                <h4>
-                    Rs. <?php echo number_format($row['price'], 2); ?>
-                </h4>
+                    <strong>
+                        Rs. <?php echo number_format($row['price'], 2); ?>
+                    </strong>
+                </p>
 
-
-                <!-- Quantity -->
-
-                <form action="add_to_cart.php" method="POST">
+                <!-- Add to cart -->
+                <form
+                    class="add-cart-form"
+                    method="POST"
+                >
 
                     <input
                         type="hidden"
@@ -181,7 +277,7 @@ if (!$result) {
                         value="<?php echo $row['id']; ?>"
                     >
 
-
+                    <!-- Quantity -->
                     <div class="quantity-box">
 
                         <button
@@ -190,7 +286,6 @@ if (!$result) {
                         >
                             −
                         </button>
-
 
                         <input
                             type="number"
@@ -201,7 +296,6 @@ if (!$result) {
                             max="20"
                         >
 
-
                         <button
                             type="button"
                             onclick="increaseQuantity(<?php echo $row['id']; ?>)"
@@ -211,10 +305,9 @@ if (!$result) {
 
                     </div>
 
-
+                    <!-- Add button -->
                     <button
                         type="submit"
-                        name="add_to_cart"
                         class="main-btn"
                     >
                         Add to Cart
@@ -222,12 +315,9 @@ if (!$result) {
 
                 </form>
 
-
             </div>
 
-
-        <?php } ?>
-
+        <?php endwhile; ?>
 
     </div>
 
@@ -236,34 +326,98 @@ if (!$result) {
 
 <script>
 
+// Increase quantity
 function increaseQuantity(id) {
 
     let input = document.getElementById("quantity-" + id);
 
-    let current = parseInt(input.value);
+    let current = parseInt(input.value) || 1;
 
     if (current < 20) {
         input.value = current + 1;
     }
-
 }
 
-
+// Decrease quantity
 function decreaseQuantity(id) {
 
     let input = document.getElementById("quantity-" + id);
 
-    let current = parseInt(input.value);
+    let current = parseInt(input.value) || 1;
 
     if (current > 1) {
         input.value = current - 1;
     }
-
 }
+
+// Add to cart
+document.querySelectorAll(".add-cart-form").forEach(function(form) {
+
+    form.addEventListener("submit", function(e) {
+
+        e.preventDefault();
+
+        let quantityInput =
+            form.querySelector('input[name="quantity"]');
+
+        let qty =
+            parseInt(quantityInput.value) || 1;
+
+        // Keep quantity between 1 and 20
+        if (qty < 1) {
+            qty = 1;
+            quantityInput.value = 1;
+        }
+
+        if (qty > 20) {
+            qty = 20;
+            quantityInput.value = 20;
+        }
+
+        // Send cart request
+        fetch("add_to_cart.php", {
+            method: "POST",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: new FormData(form)
+        })
+
+        .then(function(response) {
+
+            if (!response.ok) {
+                throw new Error("Failed to add item to cart");
+            }
+
+            return response.text();
+        })
+
+        .then(function() {
+
+            // Update cart badge
+            let badge =
+                document.getElementById("cart-badge");
+
+            let current =
+                parseInt(badge.textContent) || 0;
+
+            badge.textContent =
+                current + qty;
+
+            badge.style.display = "flex";
+        })
+
+        .catch(function(error) {
+
+            console.error(error);
+
+        });
+
+    });
+
+});
 
 </script>
 
-
 </body>
-
 </html>
