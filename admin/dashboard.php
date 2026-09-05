@@ -5,9 +5,7 @@ session_start();
 
 include "../config/db.php";
 
-// ----------------------------------------------------
-// ADMIN LOGIN CHECK
-// ----------------------------------------------------
+/* ADMIN LOGIN CHECK */
 
 if (
     !isset($_SESSION['user_id']) ||
@@ -17,10 +15,6 @@ if (
     header("Location: ../login.php");
     exit();
 }
-
-// ----------------------------------------------------
-// WHICH PAGE SHOULD BE SHOWN?
-// ----------------------------------------------------
 
 $page = $_GET['page'] ?? 'dashboard';
 
@@ -36,9 +30,7 @@ if (!in_array($page, $allowed_pages)) {
     $page = 'dashboard';
 }
 
-// ----------------------------------------------------
-// UPDATE ORDER STATUS
-// ----------------------------------------------------
+/* UPDATE ORDER STATUS */
 
 if (isset($_POST['update_status'])) {
 
@@ -82,9 +74,7 @@ if (isset($_POST['update_status'])) {
     exit();
 }
 
-// ----------------------------------------------------
-// DASHBOARD STATISTICS
-// ----------------------------------------------------
+/* DASHBOARD STATISTICS */
 
 // Total customers
 $result = mysqli_query(
@@ -221,9 +211,7 @@ if (!$recent_orders) {
             color: #333;
         }
 
-        /* ==================================================
-           MAIN LAYOUT
-        ================================================== */
+        /* MAIN LAYOUT */
 
         .admin-layout {
             display: flex;
@@ -232,9 +220,7 @@ if (!$recent_orders) {
         }
 
 
-        /* ==================================================
-           SIDEBAR
-        ================================================== */
+        /* SIDEBAR */
 
         .sidebar {
             width: 230px;
@@ -366,9 +352,7 @@ if (!$recent_orders) {
         }
 
 
-        /* ==================================================
-           RIGHT SIDE
-        ================================================== */
+        /* RIGHT SIDE*/
 
         .main-content {
             margin-left: 230px;
@@ -385,9 +369,7 @@ if (!$recent_orders) {
         }
 
 
-        /* ==================================================
-           DASHBOARD WELCOME
-        ================================================== */
+        /* DASHBOARD WELCOME */
 
         .welcome {
             margin-bottom: 35px;
@@ -408,9 +390,7 @@ if (!$recent_orders) {
         }
 
 
-        /* ==================================================
-           STATISTICS
-        ================================================== */
+        /* STATISTICS */
 
         .stats {
             display: grid;
@@ -473,9 +453,7 @@ if (!$recent_orders) {
         }
 
 
-        /* ==================================================
-           RECENT ORDERS
-        ================================================== */
+        /*RECENT ORDERS */
 
         .orders-box {
             background: white;
@@ -589,18 +567,14 @@ if (!$recent_orders) {
         }
 
 
-        /* ==================================================
-           INNER PAGE
-        ================================================== */
+        /* INNER PAGE */
 
         .inner-page {
             width: 100%;
         }
 
 
-        /* ==================================================
-           RESPONSIVE
-        ================================================== */
+        /* RESPONSIVE */
 
         @media (max-width: 1200px) {
 
@@ -675,9 +649,7 @@ if (!$recent_orders) {
 <div class="admin-layout">
 
 
-    <!-- ==================================================
-         LEFT SIDEBAR
-    ================================================== -->
+    <!-- LEFT SIDEBAR -->
 
     <aside class="sidebar">
 
@@ -771,9 +743,7 @@ if (!$recent_orders) {
     </aside>
 
 
-    <!-- ==================================================
-         RIGHT CONTENT
-    ================================================== -->
+    <!-- RIGHT CONTENT -->
 
     <main class="main-content">
 
@@ -783,9 +753,7 @@ if (!$recent_orders) {
             <?php if ($page == 'dashboard'): ?>
 
 
-                <!-- ==================================================
-                     DASHBOARD
-                ================================================== -->
+                <!-- DASHBOARD -->
 
                 <div class="welcome">
 
@@ -1184,9 +1152,7 @@ if (!$recent_orders) {
             <?php elseif ($page == 'food'): ?>
 
 
-                <!-- ==================================================
-                     FOOD MANAGEMENT
-                ================================================== -->
+                <!-- FOOD MANAGEMENT -->
 
                 <div class="inner-page">
 
@@ -1198,9 +1164,7 @@ if (!$recent_orders) {
             <?php elseif ($page == 'add_food'): ?>
 
 
-                <!-- ==================================================
-                     ADD FOOD
-                ================================================== -->
+                <!-- ADD FOOD -->
 
                 <div class="inner-page">
 
@@ -1212,9 +1176,7 @@ if (!$recent_orders) {
             <?php elseif ($page == 'categories'): ?>
 
 
-                <!-- ==================================================
-                     CATEGORIES
-                ================================================== -->
+                <!-- CATEGORIES -->
 
                 <div class="inner-page">
 
@@ -1226,9 +1188,7 @@ if (!$recent_orders) {
             <?php elseif ($page == 'orders'): ?>
 
 
-                <!-- ==================================================
-                     ORDERS
-                ================================================== -->
+                <!-- ORDERS-->
 
                 <div class="inner-page">
 
