@@ -1,28 +1,21 @@
 <?php
 
-session_start();
-
 include "../config/db.php";
 
+/*ADMIN ONLY*/
 
-/* =========================
-   ADMIN ONLY
-========================= */
-
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
-
+if (
+    !isset($_SESSION['user_id']) ||
+    !isset($_SESSION['role']) ||
+    $_SESSION['role'] != "admin"
+) {
     header("Location: ../login.php");
     exit();
-
 }
-
 
 $message = "";
 
-
-/* =========================
-   GET CATEGORIES
-========================= */
+/* GET CATEGORIES */
 
 $category_query = "
     SELECT id, name
@@ -30,80 +23,89 @@ $category_query = "
     ORDER BY name ASC
 ";
 
-$category_result = mysqli_query(
-    $conn,
-    $category_query
-);
-
+$category_result = mysqli_query($conn, $category_query);
 
 if (!$category_result) {
-
-    die(
-        "Category query failed: " .
-        mysqli_error($conn)
-    );
-
+    die("Category query failed: " . mysqli_error($conn));
 }
 
-
-/* =========================
-   ADD FOOD
-========================= */
+/* ADD FOOD */
 
 if (isset($_POST['add_food'])) {
 
+    $name = trim($_POST['name'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $price = (float)($_POST['price'] ?? 0);
+    $price_unit = $_POST['price_unit'] ?? 'Per Plate';
+    $category_id = (int)($_POST['category_id'] ?? 0);
 
-    $name = trim($_POST['name']);
+    /*ALLOWED PRICE UNITS*/
 
-    $description = trim($_POST['description']);
+    $allowed_units = [
+        'Per Plate',
+        'Per Unit'
+    ];
 
-    $price = (float) $_POST['price'];
+    /* VALIDATION */
 
-    /* IMPORTANT: get category ID */
-    $category_id = (int) $_POST['category_id'];
+    if ($name === '') {
 
+        $message = "Please enter the food name.";
 
-    /* =========================
-       CHECK CATEGORY
-    ========================= */
+    } elseif ($description === '') {
 
-    if ($category_id <= 0) {
+        $message = "Please enter the food description.";
+
+    } elseif ($price < 50) {
+
+        $message = "Price must be at least Rs. 50.";
+
+    } elseif (!in_array($price_unit, $allowed_units)) {
+
+        $message = "Please select a valid pricing unit.";
+
+    } elseif ($category_id <= 0) {
 
         $message = "Please select a category.";
 
     }
 
-
-    /* =========================
-       IMAGE
-    ========================= */
+    /* IMAGE */
 
     elseif (
-        isset($_FILES['image']) &&
-        $_FILES['image']['error'] == 0
+        !isset($_FILES['image']) ||
+        $_FILES['image']['error'] != 0
     ) {
 
+        $message = "Please select a food image.";
 
-        $image = $_FILES['image']['name'];
+    } else {
 
+        $image = basename($_FILES['image']['name']);
         $temp_image = $_FILES['image']['tmp_name'];
 
+        $upload_folder = "../uploads/";
 
-        $folder = "../uploads/" . $image;
+        // Make sure uploads folder exists
+        if (!is_dir($upload_folder)) {
+            mkdir($upload_folder, 0777, true);
+        }
 
+        // Prevent duplicate filenames
+        $extension = pathinfo($image, PATHINFO_EXTENSION);
+        $filename = pathinfo($image, PATHINFO_FILENAME);
+
+        $image = $filename . "_" . time() . "." . $extension;
+
+        $folder = $upload_folder . $image;
 
         if (!move_uploaded_file($temp_image, $folder)) {
 
-
             $message = "Failed to upload image.";
-
 
         } else {
 
-
-            /* =========================
-               INSERT FOOD
-            ========================= */
+            /* INSERT FOOD */
 
             $query = "
                 INSERT INTO food
@@ -111,77 +113,61 @@ if (isset($_POST['add_food'])) {
                     name,
                     description,
                     price,
+                    price_unit,
                     image,
                     category_id
                 )
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?)
             ";
 
-
-            $stmt = mysqli_prepare(
-                $conn,
-                $query
-            );
-
+            $stmt = mysqli_prepare($conn, $query);
 
             if ($stmt) {
 
-
                 mysqli_stmt_bind_param(
                     $stmt,
-                    "ssdsi",
+                    "ssdssi",
                     $name,
                     $description,
                     $price,
+                    $price_unit,
                     $image,
                     $category_id
                 );
 
-
                 if (mysqli_stmt_execute($stmt)) {
 
-
-                    $message =
-                        "Food added successfully!";
-
+                    $message = "Food added successfully!";
 
                 } else {
-
 
                     $message =
                         "Failed to add food: " .
                         mysqli_stmt_error($stmt);
 
+                    // Remove uploaded image if database insert failed
+                    if (file_exists($folder)) {
+                        unlink($folder);
+                    }
                 }
-
 
                 mysqli_stmt_close($stmt);
 
-
             } else {
-
 
                 $message =
                     "Database error: " .
                     mysqli_error($conn);
 
+                // Remove uploaded image if statement failed
+                if (file_exists($folder)) {
+                    unlink($folder);
+                }
             }
-
         }
-
-
-    } else {
-
-
-        $message =
-            "Please select a food image.";
-
     }
 
-
-    /* =========================
-       GET CATEGORIES AGAIN
-    ========================= */
+    /* GET CATEGORIES AGAIN */
 
     $category_result = mysqli_query(
         $conn,
@@ -191,15 +177,11 @@ if (isset($_POST['add_food'])) {
         ORDER BY name ASC
         "
     );
-
 }
-
 
 ?>
 
-
 <!DOCTYPE html>
-
 <html lang="en">
 
 <head>
@@ -213,60 +195,59 @@ if (isset($_POST['add_food'])) {
 
 <title>Add Food | CraveBite</title>
 
-<link
-    rel="stylesheet"
-    href="../css/style.css"
->
-
-
 <style>
 
-body {
-    background: #fff8f0;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+body {
+    background: #f7f7f7;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #333;
+}
 
 .form-container {
 
-    width: 90%;
+    width: 100%;
+    max-width: 700px;
 
-    max-width: 600px;
-
-    margin: 40px auto;
+    margin: 0 auto;
 
     background: white;
 
-    padding: 30px;
+    padding: 35px;
 
-    border-radius: 15px;
+    border-radius: 14px;
 
-    box-shadow:
-        0 5px 20px rgba(0,0,0,0.08);
-
+    border: 1px solid #eeeeee;
 }
-
 
 .form-container h2 {
 
-    color: #f57c00;
+    color: #222;
 
     margin-bottom: 25px;
 
+    font-size: 28px;
 }
-
 
 .form-container label {
 
     display: block;
 
-    margin-top: 15px;
+    margin-top: 17px;
 
     margin-bottom: 7px;
 
     font-weight: bold;
 
-}
+    font-size: 14px;
 
+    color: #444;
+}
 
 .form-container input,
 .form-container textarea,
@@ -274,27 +255,16 @@ body {
 
     width: 100%;
 
-    padding: 11px;
+    padding: 12px;
 
     border: 1px solid #ddd;
 
     border-radius: 7px;
 
-    box-sizing: border-box;
-
     font-size: 15px;
 
+    background: white;
 }
-
-
-.form-container textarea {
-
-    min-height: 100px;
-
-    resize: vertical;
-
-}
-
 
 .form-container input:focus,
 .form-container textarea:focus,
@@ -302,20 +272,54 @@ body {
 
     outline: none;
 
-    border-color: #f57c00;
-
+    border-color: #ff6b00;
 }
 
+.form-container textarea {
+
+    min-height: 110px;
+
+    resize: vertical;
+}
+
+/* PRICE ROW */
+
+.price-row {
+
+    display: flex;
+
+    gap: 12px;
+
+    width: 100%;
+}
+
+.price-input {
+
+    flex: 1;
+}
+
+.price-unit {
+
+    width: 180px;
+}
+
+.price-row input,
+.price-row select {
+
+    width: 100%;
+}
+
+/* BUTTON */
 
 .form-container button {
 
     width: 100%;
 
-    margin-top: 25px;
+    margin-top: 28px;
 
     padding: 13px;
 
-    background: #f57c00;
+    background: #ff6b00;
 
     color: white;
 
@@ -328,16 +332,14 @@ body {
     font-weight: bold;
 
     cursor: pointer;
-
 }
-
 
 .form-container button:hover {
 
-    background: #e66d00;
-
+    background: #e65c00;
 }
 
+/* MESSAGE */
 
 .message {
 
@@ -351,107 +353,40 @@ body {
 
     color: #856404;
 
+    border: 1px solid #ffe69c;
 }
 
+/* MOBILE */
 
-.navbar {
+@media (max-width: 600px) {
 
-    background: #f57c00;
+    .form-container {
 
-    padding: 15px 5%;
+        padding: 25px;
+    }
 
-    display: flex;
+    .price-row {
 
-    justify-content: space-between;
+        flex-direction: column;
+    }
 
-    align-items: center;
+    .price-unit {
 
-}
-
-
-.navbar a {
-
-    color: white;
-
-    text-decoration: none;
-
-    font-weight: bold;
-
-}
-
-
-.nav-links {
-
-    display: flex;
-
-    gap: 25px;
-
-    list-style: none;
-
-    margin: 0;
-
-    padding: 0;
-
+        width: 100%;
+    }
 }
 
 </style>
 
 </head>
 
-
 <body>
 
-
-<header>
-
-<nav class="navbar">
-
-
-    <a href="dashboard.php">
-        CraveBite Admin
-    </a>
-
-
-    <ul class="nav-links">
-
-
-        <li>
-            <a href="dashboard.php">
-                Dashboard
-            </a>
-        </li>
-
-
-        <li>
-            <a href="manage_food.php">
-                Manage Food
-            </a>
-        </li>
-
-
-        <li>
-            <a href="../logout.php">
-                Logout
-            </a>
-        </li>
-
-
-    </ul>
-
-
-</nav>
-
-</header>
-
-
-
 <div class="form-container">
-
 
     <h2>
         Add New Food
     </h2>
-
 
     <?php if (!empty($message)): ?>
 
@@ -465,13 +400,10 @@ body {
 
     <?php endif; ?>
 
-
-
     <form
         method="POST"
         enctype="multipart/form-data"
     >
-
 
         <!-- FOOD NAME -->
 
@@ -487,7 +419,6 @@ body {
         >
 
 
-
         <!-- DESCRIPTION -->
 
         <label>
@@ -501,21 +432,47 @@ body {
         ></textarea>
 
 
-
-        <!-- PRICE -->
+        <!-- PRICE + UNIT -->
 
         <label>
-            Price (Rs.)
+            Price
         </label>
 
-        <input
-            type="number"
-            name="price"
-            placeholder="Enter price"
-            min="1"
-            required
-        >
+        <div class="price-row">
 
+            <div class="price-input">
+
+                <input
+                    type="number"
+                    name="price"
+                    min="50"
+                    step="0.01"
+                    placeholder="Enter price"
+                    required
+                >
+
+            </div>
+
+            <div class="price-unit">
+
+                <select
+                    name="price_unit"
+                    required
+                >
+
+                    <option value="Per Plate">
+                        Per Plate
+                    </option>
+
+                    <option value="Per Unit">
+                        Per Unit
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
 
 
         <!-- CATEGORY -->
@@ -524,44 +481,32 @@ body {
             Category
         </label>
 
-
         <select
             name="category_id"
             required
         >
 
-
             <option value="">
                 -- Select Category --
             </option>
 
-
             <?php while (
-                $cat =
-                mysqli_fetch_assoc($category_result)
+                $cat = mysqli_fetch_assoc($category_result)
             ): ?>
 
-
                 <option
-                    value="<?php
-                        echo $cat['id'];
-                    ?>"
+                    value="<?php echo $cat['id']; ?>"
                 >
 
                     <?php
-                    echo htmlspecialchars(
-                        $cat['name']
-                    );
+                    echo htmlspecialchars($cat['name']);
                     ?>
 
                 </option>
 
-
             <?php endwhile; ?>
 
-
         </select>
-
 
 
         <!-- IMAGE -->
@@ -569,7 +514,6 @@ body {
         <label>
             Food Image
         </label>
-
 
         <input
             type="file"
@@ -579,24 +523,18 @@ body {
         >
 
 
-
         <!-- BUTTON -->
 
         <button
             type="submit"
             name="add_food"
         >
-
             Add Food
-
         </button>
-
 
     </form>
 
-
 </div>
-
 
 </body>
 
