@@ -138,7 +138,7 @@ if (isset($_POST['register'])) {
 
     <link
         rel="stylesheet"
-        href="css/style.css"
+        href="css/register.css"
     >
 
 </head>
