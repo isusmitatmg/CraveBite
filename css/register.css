@@ -1,0 +1,107 @@
+/* REGISTER / LOGIN FORM */
+
+.form-container {
+    width: 400px;
+    max-width: 90%;
+    margin: 60px auto;
+    padding: 40px;
+    background: #ffffff;
+    border-radius: 20px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.08);
+}
+
+.form-container h2 {
+    text-align: center;
+    color: #ff7a00;
+    font-size: 28px;
+    margin-bottom: 25px;
+}
+
+.form-container p {
+    text-align: center;
+    margin: 15px 0;
+    color: #555;
+    font-size: 14px;
+}
+
+.form-container label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 7px;
+    font-weight: bold;
+    color: #333;
+    font-size: 14px;
+}
+
+.form-container input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    font-size: 15px;
+    background: #fff;
+    transition: 0.2s;
+}
+
+.form-container input:focus {
+    border-color: #ff7a00;
+    box-shadow: 0 0 0 3px rgba(255, 122, 0, 0.1);
+}
+
+.form-container button {
+    width: 100%;
+    margin-top: 25px;
+    padding: 13px;
+    border: none;
+    border-radius: 25px;
+    background: #ff7a00;
+    color: white;
+    font-size: 17px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.form-container button:hover {
+    background: #e66d00;
+    transform: translateY(-1px);
+}
+
+.form-container a {
+    color: #ff7a00;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.form-container a:hover {
+    text-decoration: underline;
+}
+
+.back-home {
+    display: inline-block;
+    margin-bottom: 15px;
+    color: #ff7a00;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.back-home:hover {
+    text-decoration: underline;
+}
+
+
+/* MOBILE REGISTER FORM */
+
+@media (max-width: 500px) {
+    .form-container {
+        width: 92%;
+        margin: 30px auto;
+        padding: 25px;
+    }
+
+    .form-container h2 {
+        font-size: 24px;
+    }
+}
