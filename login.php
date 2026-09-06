@@ -61,10 +61,7 @@ if (isset($_POST['login'])) {
                 mysqli_stmt_close($stmt);
 
 
-                /* =========================
-                   MOVE GUEST CART
-                   TO USER CART
-                ========================= */
+                //  MOVE GUEST CART TO USER CART
 
                 if (
                     isset($_SESSION['guest_cart']) &&
@@ -277,7 +274,7 @@ if (isset($_POST['login'])) {
 
     <link
         rel="stylesheet"
-        href="css/style.css"
+        href="css/login.css"
     >
 
 </head>
