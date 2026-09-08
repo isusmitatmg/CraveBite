@@ -2,7 +2,7 @@
 
 include "../config/db.php";
 
-/*ADMIN ONLY*/
+/* ADMIN ONLY */
 
 if (
     !isset($_SESSION['user_id']) ||
@@ -39,7 +39,7 @@ if (isset($_POST['add_food'])) {
     $price_unit = $_POST['price_unit'] ?? 'Per Plate';
     $category_id = (int)($_POST['category_id'] ?? 0);
 
-    /*ALLOWED PRICE UNITS*/
+    /* ALLOWED PRICE UNITS */
 
     $allowed_units = [
         'Per Plate',
@@ -49,25 +49,15 @@ if (isset($_POST['add_food'])) {
     /* VALIDATION */
 
     if ($name === '') {
-
         $message = "Please enter the food name.";
-
     } elseif ($description === '') {
-
         $message = "Please enter the food description.";
-
     } elseif ($price < 50) {
-
         $message = "Price must be at least Rs. 50.";
-
     } elseif (!in_array($price_unit, $allowed_units)) {
-
         $message = "Please select a valid pricing unit.";
-
     } elseif ($category_id <= 0) {
-
         $message = "Please select a category.";
-
     }
 
     /* IMAGE */
@@ -76,14 +66,11 @@ if (isset($_POST['add_food'])) {
         !isset($_FILES['image']) ||
         $_FILES['image']['error'] != 0
     ) {
-
         $message = "Please select a food image.";
-
     } else {
 
         $image = basename($_FILES['image']['name']);
         $temp_image = $_FILES['image']['tmp_name'];
-
         $upload_folder = "../uploads/";
 
         // Make sure uploads folder exists
@@ -96,7 +83,6 @@ if (isset($_POST['add_food'])) {
         $filename = pathinfo($image, PATHINFO_FILENAME);
 
         $image = $filename . "_" . time() . "." . $extension;
-
         $folder = $upload_folder . $image;
 
         if (!move_uploaded_file($temp_image, $folder)) {
@@ -186,197 +172,16 @@ if (isset($_POST['add_food'])) {
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-<title>Add Food | CraveBite</title>
+    <title>Add Food | CraveBite</title>
 
-<style>
-
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    background: #f7f7f7;
-    font-family: Arial, Helvetica, sans-serif;
-    color: #333;
-}
-
-.form-container {
-
-    width: 100%;
-    max-width: 700px;
-
-    margin: 0 auto;
-
-    background: white;
-
-    padding: 35px;
-
-    border-radius: 14px;
-
-    border: 1px solid #eeeeee;
-}
-
-.form-container h2 {
-
-    color: #222;
-
-    margin-bottom: 25px;
-
-    font-size: 28px;
-}
-
-.form-container label {
-
-    display: block;
-
-    margin-top: 17px;
-
-    margin-bottom: 7px;
-
-    font-weight: bold;
-
-    font-size: 14px;
-
-    color: #444;
-}
-
-.form-container input,
-.form-container textarea,
-.form-container select {
-
-    width: 100%;
-
-    padding: 12px;
-
-    border: 1px solid #ddd;
-
-    border-radius: 7px;
-
-    font-size: 15px;
-
-    background: white;
-}
-
-.form-container input:focus,
-.form-container textarea:focus,
-.form-container select:focus {
-
-    outline: none;
-
-    border-color: #ff6b00;
-}
-
-.form-container textarea {
-
-    min-height: 110px;
-
-    resize: vertical;
-}
-
-/* PRICE ROW */
-
-.price-row {
-
-    display: flex;
-
-    gap: 12px;
-
-    width: 100%;
-}
-
-.price-input {
-
-    flex: 1;
-}
-
-.price-unit {
-
-    width: 180px;
-}
-
-.price-row input,
-.price-row select {
-
-    width: 100%;
-}
-
-/* BUTTON */
-
-.form-container button {
-
-    width: 100%;
-
-    margin-top: 28px;
-
-    padding: 13px;
-
-    background: #ff6b00;
-
-    color: white;
-
-    border: none;
-
-    border-radius: 7px;
-
-    font-size: 16px;
-
-    font-weight: bold;
-
-    cursor: pointer;
-}
-
-.form-container button:hover {
-
-    background: #e65c00;
-}
-
-/* MESSAGE */
-
-.message {
-
-    padding: 12px;
-
-    margin-bottom: 20px;
-
-    background: #fff3cd;
-
-    border-radius: 7px;
-
-    color: #856404;
-
-    border: 1px solid #ffe69c;
-}
-
-/* MOBILE */
-
-@media (max-width: 600px) {
-
-    .form-container {
-
-        padding: 25px;
-    }
-
-    .price-row {
-
-        flex-direction: column;
-    }
-
-    .price-unit {
-
-        width: 100%;
-    }
-}
-
-</style>
+    <link rel="stylesheet" href="../css/admin-add-food.css">
 
 </head>
 
@@ -418,7 +223,6 @@ body {
             required
         >
 
-
         <!-- DESCRIPTION -->
 
         <label>
@@ -430,7 +234,6 @@ body {
             placeholder="Enter food description"
             required
         ></textarea>
-
 
         <!-- PRICE + UNIT -->
 
@@ -474,7 +277,6 @@ body {
 
         </div>
 
-
         <!-- CATEGORY -->
 
         <label>
@@ -497,17 +299,14 @@ body {
                 <option
                     value="<?php echo $cat['id']; ?>"
                 >
-
                     <?php
                     echo htmlspecialchars($cat['name']);
                     ?>
-
                 </option>
 
             <?php endwhile; ?>
 
         </select>
-
 
         <!-- IMAGE -->
 
@@ -521,7 +320,6 @@ body {
             accept="image/*"
             required
         >
-
 
         <!-- BUTTON -->
 
