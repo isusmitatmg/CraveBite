@@ -1,0 +1,322 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f7f7f7;
+  color: #333;
+}
+
+.admin-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+}
+
+.sidebar {
+  width: 230px;
+  min-width: 230px;
+  height: 100vh;
+  position: fixed;
+  left: 0;
+  top: 0;
+  background: #ffffff;
+  border-right: 1px solid #e5e5e5;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.logo {
+  height: 115px;
+  display: flex;
+  align-items: center;
+  padding-left: 35px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.logo h2 {
+  font-size: 30px;
+  color: #ff6b00;
+}
+
+.logo span {
+  color: #222;
+}
+
+.admin-title {
+  padding: 25px 30px;
+  text-align: center;
+  border-bottom: 1px solid #eeeeee;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.navigation {
+  padding: 25px 15px;
+}
+
+.navigation ul {
+  list-style: none;
+}
+
+.navigation li {
+  margin-bottom: 6px;
+}
+
+.navigation a {
+  display: block;
+  padding: 14px 18px;
+  text-decoration: none;
+  color: #444;
+  font-size: 15px;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.navigation a:hover {
+  background: #fff1e8;
+  color: #ff6b00;
+}
+
+.navigation .active a {
+  background: #ff6b00;
+  color: white;
+}
+
+.logout {
+  margin-top: auto;
+  padding: 18px 15px;
+  border-top: 1px solid #eeeeee;
+}
+
+.logout a {
+  display: block;
+  padding: 14px 18px;
+  text-decoration: none;
+  color: #444;
+  font-size: 15px;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.logout a:hover {
+  background: #fff1e8;
+  color: #ff6b00;
+}
+
+.main-content {
+  margin-left: 230px;
+  width: calc(100% - 230px);
+  min-height: 100vh;
+  padding: 45px 50px;
+}
+
+.content-wrapper {
+  width: 100%;
+}
+
+.welcome {
+  margin-bottom: 35px;
+}
+
+.welcome h1 {
+  font-size: 34px;
+  color: #222;
+  margin-bottom: 8px;
+}
+
+.welcome p {
+  font-size: 16px;
+  color: #888;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(160px, 1fr));
+  gap: 22px;
+  margin-bottom: 35px;
+}
+
+.stat-card {
+  background: white;
+  border: 1px solid #eeeeee;
+  border-radius: 14px;
+  padding: 28px;
+  min-height: 145px;
+  transition: 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+}
+
+.stat-content h4 {
+  color: #888;
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+
+.stat-content h2 {
+  font-size: 32px;
+  color: #222;
+}
+
+.revenue-card {
+  background: #ff6b00;
+  border: none;
+}
+
+.revenue-card h4,
+.revenue-card h2 {
+  color: white;
+}
+
+.orders-box {
+  background: white;
+  border: 1px solid #eeeeee;
+  border-radius: 14px;
+  padding: 28px;
+  width: 100%;
+  overflow-x: auto;
+}
+
+.box-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 22px;
+}
+
+.box-header h2 {
+  font-size: 21px;
+  color: #222;
+}
+
+.view-all {
+  text-decoration: none;
+  color: #ff6b00;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.orders-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+.orders-table th {
+  text-align: left;
+  font-size: 12px;
+  color: #999;
+  padding: 14px 10px;
+  border-bottom: 1px solid #eeeeee;
+}
+
+.orders-table td {
+  padding: 17px 10px;
+  font-size: 14px;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.order-id {
+  font-weight: bold;
+}
+
+.food-items-cell {
+  max-width: 280px;
+}
+
+.status-form {
+  margin: 0;
+}
+
+.status-select {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.status-pending {
+  background: #fff4dc;
+  color: #d58b00;
+}
+
+.status-completed {
+  background: #e7f8ee;
+  color: #1a9b50;
+}
+
+.status-cancelled {
+  background: #ffe8e8;
+  color: #d64545;
+}
+
+.status-default {
+  background: #eeeeee;
+  color: #666;
+}
+
+.no-orders {
+  padding: 40px;
+  text-align: center;
+  color: #999;
+}
+
+.inner-page {
+  width: 100%;
+}
+
+@media (max-width: 1200px) {
+  .stats {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .sidebar {
+    width: 200px;
+    min-width: 200px;
+  }
+
+  .main-content {
+    margin-left: 200px;
+    width: calc(100% - 200px);
+    padding: 30px;
+  }
+
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .sidebar {
+    position: relative;
+    width: 100%;
+    min-width: 100%;
+    height: auto;
+  }
+
+  .admin-layout {
+    display: block;
+  }
+
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding: 25px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}
