@@ -1,0 +1,146 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #fff8f0;
+  color: #333;
+}
+
+.navbar {
+  background: #f57c00;
+  padding: 16px 5%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navbar h2 {
+  margin: 0;
+  color: white;
+}
+
+.navbar a {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  margin-left: 20px;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  width: 90%;
+  max-width: 550px;
+  margin: 30px auto;
+}
+
+.form-box {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  box-shadow: 0 5px 18px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  color: #f57c00;
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+label {
+  display: block;
+  margin-bottom: 7px;
+  font-weight: bold;
+}
+
+input,
+textarea,
+select {
+  width: 100%;
+  padding: 11px;
+  margin-bottom: 18px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: #f57c00;
+}
+
+.current-image {
+  margin-bottom: 18px;
+}
+
+.current-image img {
+  width: 150px;
+  height: 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+  margin-top: 8px;
+}
+
+.update-btn {
+  width: 100%;
+  padding: 12px;
+  background: #f57c00;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.update-btn:hover {
+  background: #e66d00;
+}
+
+.back-btn {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: #f57c00;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.back-btn:hover {
+  text-decoration: underline;
+}
+
+.error {
+  background: #f8d7da;
+  color: #842029;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+  .container {
+    width: 94%;
+  }
+
+  .navbar {
+    padding: 15px 20px;
+  }
+
+  .navbar h2 {
+    font-size: 20px;
+  }
+}
