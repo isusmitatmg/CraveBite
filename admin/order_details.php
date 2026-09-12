@@ -1,9 +1,12 @@
 <?php
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
 include "../config/db.php";
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
     exit();
 }
@@ -57,83 +60,18 @@ $item_result = mysqli_stmt_get_result($item_stmt);
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Order Details | CraveBite</title>
 
-    <style>
-
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background: #fff8f0;
-        }
-
-        .navbar {
-            background: #f57c00;
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .navbar a {
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-        }
-
-        .container {
-            width: 90%;
-            max-width: 900px;
-            margin: 40px auto;
-        }
-
-        .container h2 {
-            color: #f57c00;
-            margin-bottom: 25px;
-        }
-
-        .order-info {
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        .order-info p {
-            margin: 10px 0;
-        }
-
-        table {
-            width: 100%;
-            background: white;
-            border-collapse: collapse;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
-        }
-
-        th {
-            background: #f57c00;
-            color: white;
-            padding: 12px;
-            text-align: left;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid #eee;
-        }
-
-        td img {
-            width: 80px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-
-    </style>
+    <link
+        rel="stylesheet"
+        href="../css/admin-order-details.css"
+    >
 
 </head>
 
@@ -141,12 +79,8 @@ $item_result = mysqli_stmt_get_result($item_stmt);
 
 <div class="navbar">
 
-    <a href="order.php">
+    <a href="dashboard.php?page=orders">
         &larr; Manage Orders
-    </a>
-
-    <a href="../logout.php">
-        Logout
     </a>
 
 </div>
@@ -161,28 +95,46 @@ $item_result = mysqli_stmt_get_result($item_stmt);
 
         <p>
             <strong>Customer:</strong>
-            <?php echo htmlspecialchars($order['name']); ?>
+
+            <?php
+            echo htmlspecialchars($order['name']);
+            ?>
         </p>
 
         <p>
-    <strong>Order ID:</strong>
-    <?php echo $order['id']; ?>
-</p>
+            <strong>Order ID:</strong>
 
-<p>
-    <strong>Date & Time:</strong>
-    <?php echo date("d M Y, h:i A", strtotime($order['order_date'])); ?>
-</p>
+            <?php
+            echo $order['id'];
+            ?>
+        </p>
 
-<p>
-    <strong>Total:</strong>
-    Rs. <?php echo number_format($order['total_price'], 2); ?>
-</p>
+        <p>
+            <strong>Date & Time:</strong>
 
+            <?php
+            echo date(
+                "d M Y, h:i A",
+                strtotime($order['order_date'])
+            );
+            ?>
+        </p>
+
+        <p>
+            <strong>Total:</strong>
+
+            Rs.
+            <?php
+            echo number_format($order['total_price'], 2);
+            ?>
+        </p>
 
         <p>
             <strong>Status:</strong>
-            <?php echo htmlspecialchars($order['status']); ?>
+
+            <?php
+            echo htmlspecialchars($order['status']);
+            ?>
         </p>
 
     </div>
@@ -190,10 +142,15 @@ $item_result = mysqli_stmt_get_result($item_stmt);
     <table>
 
         <tr>
+
             <th>Image</th>
+
             <th>Food</th>
+
             <th>Quantity</th>
+
             <th>Price</th>
+
         </tr>
 
         <?php while ($item = mysqli_fetch_assoc($item_result)): ?>
@@ -201,22 +158,37 @@ $item_result = mysqli_stmt_get_result($item_stmt);
         <tr>
 
             <td>
+
                 <img
                     src="../uploads/<?php echo htmlspecialchars($item['image']); ?>"
                     alt="Food Image"
                 >
+
             </td>
 
             <td>
-                <?php echo htmlspecialchars($item['name']); ?>
+
+                <?php
+                echo htmlspecialchars($item['name']);
+                ?>
+
             </td>
 
             <td>
-                <?php echo $item['quantity']; ?>
+
+                <?php
+                echo $item['quantity'];
+                ?>
+
             </td>
 
             <td>
-                Rs. <?php echo number_format($item['price'], 2); ?>
+
+                Rs.
+                <?php
+                echo number_format($item['price'], 2);
+                ?>
+
             </td>
 
         </tr>
@@ -228,4 +200,5 @@ $item_result = mysqli_stmt_get_result($item_stmt);
 </div>
 
 </body>
+
 </html>
