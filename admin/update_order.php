@@ -1,6 +1,5 @@
 <?php
 
-session_start();
 include "../config/db.php";
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] != "admin") {
@@ -52,46 +51,26 @@ mysqli_stmt_close($stmt);
 <html>
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Order Updated | CraveBite</title>
 
-    <meta http-equiv="refresh" content="2;url=order.php">
+    <meta
+        http-equiv="refresh"
+        content="2;url=order.php"
+    >
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #fff8f0;
-            text-align: center;
-            padding-top: 100px;
-            margin: 0;
-        }
+    <link
+        rel="stylesheet"
+        href="../css/admin-update-order.css"
+    >
 
-        .box {
-            background: white;
-            width: 450px;
-            max-width: 90%;
-            margin: auto;
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        h2 {
-            color: #f57c00;
-        }
-
-        .error {
-            color: #d9534f;
-        }
-
-        a {
-            color: #f57c00;
-            font-weight: bold;
-            text-decoration: none;
-        }
-    </style>
 </head>
 
 <body>
@@ -103,9 +82,12 @@ mysqli_stmt_close($stmt);
         <h2>✅ Order Updated!</h2>
 
         <p>
-            Order #<?php echo htmlspecialchars($order_id); ?>
+            Order #
+            <?php echo htmlspecialchars($order_id); ?>
             is now
-            <strong><?php echo htmlspecialchars($status); ?></strong>.
+            <strong>
+                <?php echo htmlspecialchars($status); ?>
+            </strong>.
         </p>
 
         <p>
@@ -139,4 +121,5 @@ mysqli_stmt_close($stmt);
 </div>
 
 </body>
+
 </html>
