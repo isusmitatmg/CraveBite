@@ -1,4 +1,3 @@
-
 <?php
 
 session_start();
@@ -8,14 +7,13 @@ include 'config/db.php';
 $total = 0;
 $cart_items = [];
 
-
-/* LOGGED-IN USER CART */
+// LOGGED-IN USER CART
 
 if (isset($_SESSION['user_id'])) {
 
     $user_id = (int) $_SESSION['user_id'];
 
-    $query = "SELECT 
+    $query = "SELECT
                     cart.food_id,
                     cart.quantity,
                     food.name,
@@ -46,8 +44,7 @@ if (isset($_SESSION['user_id'])) {
     mysqli_stmt_close($stmt);
 }
 
-
-/* GUEST CART */
+// GUEST CART
 
 else {
 
@@ -65,7 +62,7 @@ else {
                 continue;
             }
 
-            $query = "SELECT 
+            $query = "SELECT
                             id,
                             name,
                             price,
@@ -118,19 +115,16 @@ else {
 
     <link
         rel="stylesheet"
-        href="css/style.css"
+        href="css/cart.css"
     >
 
 </head>
 
-
 <body>
-
 
 <div class="cart-page">
 
-
-    <!-- CART HEADER-->
+    <!-- CART HEADER -->
 
     <div class="cart-header">
 
@@ -150,7 +144,6 @@ else {
 
         </div>
 
-
         <a
             href="menu.php"
             class="back-menu"
@@ -161,8 +154,7 @@ else {
     </div>
 
 
-
-    <!--  EMPTY CART -->
+    <!-- EMPTY CART -->
 
     <?php if (empty($cart_items)): ?>
 
@@ -189,22 +181,19 @@ else {
 
         </div>
 
-
     <?php else: ?>
 
 
-        <!-- CART CONTENT-->
+        <!-- CART CONTENT -->
 
         <div class="cart-layout">
 
 
-            <!-- CART ITEMS-->
+            <!-- CART ITEMS -->
 
             <div class="cart-items">
 
-
                 <?php foreach ($cart_items as $row): ?>
-
 
                     <?php
 
@@ -212,7 +201,6 @@ else {
                         $row['price'] * $row['quantity'];
 
                     ?>
-
 
                     <div class="cart-item">
 
@@ -229,7 +217,6 @@ else {
                         </div>
 
 
-
                         <!-- FOOD DETAILS -->
 
                         <div class="food-details">
@@ -237,24 +224,27 @@ else {
                             <h3>
 
                                 <?php
+
                                 echo htmlspecialchars($row['name']);
+
                                 ?>
 
                             </h3>
 
-
                             <p class="price">
 
                                 Rs.
+
                                 <?php
+
                                 echo number_format(
                                     $row['price'],
                                     2
                                 );
+
                                 ?>
 
                             </p>
-
 
 
                             <!-- QUANTITY -->
@@ -277,7 +267,9 @@ else {
                                 <span class="quantity">
 
                                     <?php
+
                                     echo $row['quantity'];
+
                                     ?>
 
                                 </span>
@@ -292,27 +284,26 @@ else {
                                     +
                                 </a>
 
-
                             </div>
 
                         </div>
-
 
 
                         <!-- ITEM TOTAL -->
 
                         <div class="item-right">
 
-
                             <p class="item-total">
 
                                 Rs.
 
                                 <?php
+
                                 echo number_format(
                                     $subtotal,
                                     2
                                 );
+
                                 ?>
 
                             </p>
@@ -328,24 +319,18 @@ else {
                                 Remove
                             </a>
 
-
                         </div>
-
 
                     </div>
 
-
                 <?php endforeach; ?>
 
-
             </div>
-
 
 
             <!-- ORDER SUMMARY -->
 
             <div class="order-summary">
-
 
                 <h2>
                     Order Summary
@@ -365,10 +350,12 @@ else {
                         Rs.
 
                         <?php
+
                         echo number_format(
                             $total,
                             2
                         );
+
                         ?>
 
                     </span>
@@ -376,7 +363,6 @@ else {
                 </div>
 
 
-            
                 <!-- TOTAL -->
 
                 <div class="total-line">
@@ -390,10 +376,12 @@ else {
                         Rs.
 
                         <?php
+
                         echo number_format(
                             $total,
                             2
                         );
+
                         ?>
 
                     </strong>
@@ -401,7 +389,7 @@ else {
                 </div>
 
 
-                <!--  CHECKOUT-->
+                <!-- CHECKOUT -->
 
                 <a
                     href="user/checkout.php"
@@ -420,18 +408,13 @@ else {
                     ← Continue Shopping
                 </a>
 
-
             </div>
-
 
         </div>
 
-
     <?php endif; ?>
 
-
 </div>
-
 
 </body>
 
