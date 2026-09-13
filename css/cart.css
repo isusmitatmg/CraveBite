@@ -1,0 +1,285 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #fffaf5;
+  color: #333;
+}
+
+.cart-page {
+  max-width: 1200px;
+  margin: auto;
+  padding: 50px 30px;
+}
+
+.cart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.small-title {
+  color: #ff7a00;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.cart-header h1 {
+  font-size: 40px;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #777;
+  font-size: 16px;
+}
+
+.back-menu {
+  text-decoration: none;
+  color: #ff7a00;
+  font-weight: bold;
+}
+
+.back-menu:hover {
+  color: #e66d00;
+}
+
+.cart-layout {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  align-items: start;
+}
+
+.cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cart-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: white;
+  padding: 20px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.food-image img {
+  width: 120px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.food-details {
+  flex: 1;
+}
+
+.food-details h3 {
+  margin-bottom: 8px;
+  font-size: 20px;
+}
+
+.price {
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.quantity-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.quantity-btn {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f97316;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 18px;
+}
+
+.quantity-btn:hover {
+  background: #ea580c;
+}
+
+.quantity {
+  min-width: 25px;
+  text-align: center;
+  font-weight: bold;
+}
+
+.item-right {
+  text-align: right;
+  min-width: 110px;
+}
+
+.item-total {
+  font-weight: bold;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.remove-btn {
+  color: #ef4444;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.remove-btn:hover {
+  text-decoration: underline;
+}
+
+.order-summary {
+  background: white;
+  padding: 25px;
+  border-radius: 15px;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.order-summary h2 {
+  margin-bottom: 25px;
+  font-size: 24px;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  color: #555;
+}
+
+.total-line {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid #ddd;
+  padding-top: 20px;
+  margin-top: 10px;
+  font-size: 20px;
+}
+
+.checkout-btn {
+  display: block;
+  width: 100%;
+  margin-top: 25px;
+  padding: 14px;
+  background: #ff7a00;
+  color: white;
+  text-decoration: none;
+  text-align: center;
+  border-radius: 30px;
+  font-weight: bold;
+}
+
+.checkout-btn:hover {
+  background: #e66d00;
+}
+
+.continue-link {
+  display: block;
+  text-align: center;
+  margin-top: 15px;
+  color: #ff7a00;
+  text-decoration: none;
+}
+
+.continue-link:hover {
+  color: #e66d00;
+}
+
+.empty-cart {
+  background: white;
+  padding: 60px 30px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+}
+
+.empty-icon {
+  font-size: 50px;
+  margin-bottom: 20px;
+}
+
+.empty-cart h2 {
+  margin-bottom: 10px;
+}
+
+.empty-cart p {
+  color: #777;
+  margin-bottom: 25px;
+}
+
+.browse-btn {
+  display: inline-block;
+  background: #ff7a00;
+  color: white;
+  text-decoration: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+}
+
+.browse-btn:hover {
+  background: #e66d00;
+}
+
+@media (max-width: 800px) {
+  .cart-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .cart-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .order-summary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .cart-page {
+    padding: 30px 15px;
+  }
+
+  .cart-header h1 {
+    font-size: 32px;
+  }
+
+  .cart-item {
+    flex-wrap: wrap;
+  }
+
+  .food-image img {
+    width: 100px;
+    height: 85px;
+  }
+
+  .item-right {
+    width: 100%;
+    text-align: left;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .item-total {
+    margin-bottom: 0;
+  }
+}
