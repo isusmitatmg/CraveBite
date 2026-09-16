@@ -4,6 +4,7 @@ ob_start();
 session_start();
 
 include "../config/db.php";
+require_once "../config/send_mail.php";
 
 if (
     !isset($_SESSION['user_id']) ||
@@ -21,7 +22,9 @@ $allowed_pages = [
     'food',
     'add_food',
     'categories',
-    'orders'
+    'orders',
+    'order_details',
+    'reports'
 ];
 
 if (!in_array($page, $allowed_pages)) {
@@ -29,7 +32,6 @@ if (!in_array($page, $allowed_pages)) {
 }
 
 if (isset($_POST['update_status'])) {
-
     $order_id = (int)($_POST['order_id'] ?? 0);
     $status = $_POST['status'] ?? '';
 
@@ -42,33 +44,64 @@ if (isset($_POST['update_status'])) {
         'Cancelled'
     ];
 
-    if (
-        $order_id > 0 &&
-        in_array($status, $allowed_statuses)
-    ) {
-
-        $stmt = mysqli_prepare(
+    if ($order_id > 0 && in_array($status, $allowed_statuses)) {
+        $customer_stmt = mysqli_prepare(
             $conn,
-            "UPDATE orders SET status = ? WHERE id = ?"
+            "SELECT u.name, u.email, o.token
+             FROM orders o
+             JOIN users u ON o.user_id = u.id
+             WHERE o.id = ?"
         );
 
-        if ($stmt) {
-
+        if ($customer_stmt) {
             mysqli_stmt_bind_param(
-                $stmt,
-                "si",
-                $status,
+                $customer_stmt,
+                "i",
                 $order_id
             );
 
-            mysqli_stmt_execute($stmt);
-            mysqli_stmt_close($stmt);
+            mysqli_stmt_execute($customer_stmt);
+
+            $customer_result = mysqli_stmt_get_result($customer_stmt);
+            $customer = mysqli_fetch_assoc($customer_result);
+
+            mysqli_stmt_close($customer_stmt);
+
+            $update_stmt = mysqli_prepare(
+                $conn,
+                "UPDATE orders SET status = ? WHERE id = ?"
+            );
+
+            if ($update_stmt) {
+                mysqli_stmt_bind_param(
+                    $update_stmt,
+                    "si",
+                    $status,
+                    $order_id
+                );
+
+                if (mysqli_stmt_execute($update_stmt)) {
+                    if ($customer) {
+                        sendOrderStatusEmail(
+                            $customer['email'],
+                            $customer['name'],
+                            $order_id,
+                            $status,
+                            $customer['token']
+                        );
+                    }
+                }
+
+                mysqli_stmt_close($update_stmt);
+            }
         }
     }
 
     header("Location: dashboard.php?page=orders");
     exit();
 }
+
+
 
 $result = mysqli_query(
     $conn,
@@ -169,7 +202,8 @@ if (!$recent_orders) {
 
     <title>CraveBite Admin</title>
 
-    <link rel="stylesheet" href="../css/admin-dashboard.css">
+    <link rel="stylesheet" href="../css/admin-dashboards.css">
+    <link rel="stylesheet" href="../css/admin-order-details.css">
 
 </head>
 
@@ -220,6 +254,12 @@ if (!$recent_orders) {
                 <li class="<?php echo ($page == 'orders') ? 'active' : ''; ?>">
                     <a href="dashboard.php?page=orders">
                         Orders
+                    </a>
+                </li>
+
+                <li class="<?php echo ($page == 'reports') ? 'active' : ''; ?>">
+                    <a href="dashboard.php?page=reports">
+                        Reports
                     </a>
                 </li>
 
@@ -598,6 +638,17 @@ if (!$recent_orders) {
 
                 <div class="inner-page">
                     <?php include "order.php"; ?>
+                </div>
+
+                <?php elseif ($page == 'order_details'): ?>
+
+                 <div class="inner-page">
+                     <?php include "order_details.php"; ?>
+                </div>
+
+            <?php elseif ($page == 'reports'): ?>
+                <div class="inner-page">
+                    <?php include "reports.php"; ?>
                 </div>
 
             <?php endif; ?>
