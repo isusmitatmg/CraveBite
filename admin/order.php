@@ -164,10 +164,8 @@ $statuses = [
                     </td>
 
                     <td>
-                        <a
-                            href="order_details.php?id=<?php echo $row['id']; ?>"
-                        >
-                            View
+                        <a href="dashboard.php?page=order_details&id=<?php echo $row['id']; ?>">
+                            View Details
                         </a>
                     </td>
 
