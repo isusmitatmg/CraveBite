@@ -181,7 +181,7 @@ if (isset($_POST['add_food'])) {
 
     <title>Add Food | CraveBite</title>
 
-    <link rel="stylesheet" href="../css/admin-add-food.css">
+    <link rel="stylesheet" href="../css/admin-add-foods.css">
 
 </head>
 
@@ -248,7 +248,7 @@ if (isset($_POST['add_food'])) {
                 <input
                     type="number"
                     name="price"
-                    min="50"
+                    min="0"
                     step="0.01"
                     placeholder="Enter price"
                     required
