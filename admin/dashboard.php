@@ -1,8 +1,6 @@
 <?php
-
 ob_start();
 session_start();
-
 include "../config/db.php";
 require_once "../config/send_mail.php";
 
@@ -24,6 +22,7 @@ $allowed_pages = [
     'categories',
     'orders',
     'order_details',
+    'customers',
     'reports'
 ];
 
@@ -54,17 +53,10 @@ if (isset($_POST['update_status'])) {
         );
 
         if ($customer_stmt) {
-            mysqli_stmt_bind_param(
-                $customer_stmt,
-                "i",
-                $order_id
-            );
-
+            mysqli_stmt_bind_param($customer_stmt, "i", $order_id);
             mysqli_stmt_execute($customer_stmt);
-
             $customer_result = mysqli_stmt_get_result($customer_stmt);
             $customer = mysqli_fetch_assoc($customer_result);
-
             mysqli_stmt_close($customer_stmt);
 
             $update_stmt = mysqli_prepare(
@@ -101,15 +93,12 @@ if (isset($_POST['update_status'])) {
     exit();
 }
 
-
-
 $result = mysqli_query(
     $conn,
     "SELECT COUNT(*) AS total
      FROM users
      WHERE role = 'user'"
 );
-
 $customer_data = mysqli_fetch_assoc($result);
 $total_customers = $customer_data['total'] ?? 0;
 
@@ -118,7 +107,6 @@ $result = mysqli_query(
     "SELECT COUNT(*) AS total
      FROM food"
 );
-
 $food_data = mysqli_fetch_assoc($result);
 $total_food = $food_data['total'] ?? 0;
 
@@ -127,7 +115,6 @@ $result = mysqli_query(
     "SELECT COUNT(*) AS total
      FROM category"
 );
-
 $category_data = mysqli_fetch_assoc($result);
 $total_categories = $category_data['total'] ?? 0;
 
@@ -136,83 +123,62 @@ $result = mysqli_query(
     "SELECT COUNT(*) AS total
      FROM orders"
 );
-
 $order_data = mysqli_fetch_assoc($result);
 $total_orders = $order_data['total'] ?? 0;
 
 $result = mysqli_query(
     $conn,
-    "SELECT COALESCE(SUM(total_price), 0) AS revenue
+    "SELECT COALESCE(SUM(total_price), 0) AS income
      FROM orders
-     WHERE status != 'Cancelled'"
+     WHERE status = 'Completed'"
 );
+$income_data = mysqli_fetch_assoc($result);
+$total_income = $income_data['income'] ?? 0;
 
-$revenue_data = mysqli_fetch_assoc($result);
-$total_revenue = $revenue_data['revenue'] ?? 0;
-
-$recent_orders = mysqli_query(
+$category_income = mysqli_query(
     $conn,
     "SELECT
-        o.id,
-        o.total_price,
-        o.status,
-        o.order_date,
-        o.phone_number,
-        u.name AS customer_name,
-        GROUP_CONCAT(
-            CONCAT(f.name, ' (x', oi.quantity, ')')
-            ORDER BY f.name
-            SEPARATOR ', '
-        ) AS food_items
-     FROM orders o
-     JOIN users u
-        ON o.user_id = u.id
-     LEFT JOIN order_items oi
-        ON o.id = oi.order_id
+        c.name AS category_name,
+        COALESCE(
+            SUM(
+                CASE
+                    WHEN o.status = 'Completed'
+                    THEN oi.price * oi.quantity
+                    ELSE 0
+                END
+            ),
+            0
+        ) AS income
+     FROM category c
      LEFT JOIN food f
-        ON oi.food_id = f.id
-     GROUP BY
-        o.id,
-        o.total_price,
-        o.status,
-        o.order_date,
-        o.phone_number,
-        u.name
-     ORDER BY o.order_date DESC
-     LIMIT 5"
+        ON c.id = f.category_id
+     LEFT JOIN order_items oi
+        ON f.id = oi.food_id
+     LEFT JOIN orders o
+        ON oi.order_id = o.id
+     GROUP BY c.id, c.name
+     ORDER BY income DESC, c.name ASC"
 );
 
-if (!$recent_orders) {
+if (!$category_income) {
     die("SQL Error: " . mysqli_error($conn));
 }
-
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
     <title>CraveBite Admin</title>
-
-    <link rel="stylesheet" href="../css/admin-dashboards.css">
+    <link rel="stylesheet" href="../css/admin-dashboard.css">
     <link rel="stylesheet" href="../css/admin-order-details.css">
-
 </head>
-
 <body>
-
 <div class="admin-layout">
-
     <aside class="sidebar">
-
         <div class="logo">
             <h2>
                 Crave<span>Bite</span>
@@ -224,9 +190,7 @@ if (!$recent_orders) {
         </div>
 
         <nav class="navigation">
-
             <ul>
-
                 <li class="<?php echo ($page == 'dashboard') ? 'active' : ''; ?>">
                     <a href="dashboard.php?page=dashboard">
                         Dashboard
@@ -257,359 +221,196 @@ if (!$recent_orders) {
                     </a>
                 </li>
 
+                <li class="<?php echo ($page == 'customers') ? 'active' : ''; ?>">
+                    <a href="dashboard.php?page=customers">
+                        Customers
+                    </a>
+                </li>
+
                 <li class="<?php echo ($page == 'reports') ? 'active' : ''; ?>">
                     <a href="dashboard.php?page=reports">
                         Reports
                     </a>
                 </li>
-
             </ul>
-
         </nav>
 
         <div class="logout">
-
             <a href="../logout.php">
                 Logout
             </a>
-
         </div>
-
     </aside>
 
     <main class="main-content">
-
         <div class="content-wrapper">
 
             <?php if ($page == 'dashboard'): ?>
 
                 <div class="welcome">
-
                     <h1>
                         Welcome back, Admin!
                     </h1>
-
                     <p>
                         Here's what's happening with CraveBite today.
                     </p>
-
                 </div>
 
                 <section class="stats">
 
                     <div class="stat-card">
-
                         <div class="stat-content">
-
                             <h4>
                                 TOTAL CUSTOMERS
                             </h4>
-
                             <h2>
                                 <?php echo $total_customers; ?>
                             </h2>
-
                         </div>
-
                     </div>
 
                     <div class="stat-card">
-
                         <div class="stat-content">
-
                             <h4>
                                 FOOD ITEMS
                             </h4>
-
                             <h2>
                                 <?php echo $total_food; ?>
                             </h2>
-
                         </div>
-
                     </div>
 
                     <div class="stat-card">
-
                         <div class="stat-content">
-
                             <h4>
                                 CATEGORIES
                             </h4>
-
                             <h2>
                                 <?php echo $total_categories; ?>
                             </h2>
-
                         </div>
-
                     </div>
 
                     <div class="stat-card">
-
                         <div class="stat-content">
-
                             <h4>
                                 TOTAL ORDERS
                             </h4>
-
                             <h2>
                                 <?php echo $total_orders; ?>
                             </h2>
-
                         </div>
-
                     </div>
 
                     <div class="stat-card revenue-card">
-
                         <div class="stat-content">
-
                             <h4>
-                                TOTAL REVENUE
+                                TOTAL INCOME
                             </h4>
-
                             <h2>
                                 Rs.
                                 <?php
                                 echo number_format(
-                                    $total_revenue,
+                                    $total_income,
                                     0
                                 );
                                 ?>
                             </h2>
-
                         </div>
-
                     </div>
 
                 </section>
 
-                <section class="orders-box">
+                <section class="orders-box income-section">
 
                     <div class="box-header">
-
                         <h2>
-                            Recent Orders
+                            Income by Category
                         </h2>
-
-                        <a
-                            href="dashboard.php?page=orders"
-                            class="view-all"
-                        >
-                            View All →
-                        </a>
-
                     </div>
 
                     <?php if (
-                        $recent_orders &&
-                        mysqli_num_rows($recent_orders) > 0
+                        $category_income &&
+                        mysqli_num_rows($category_income) > 0
                     ): ?>
 
-                        <table class="orders-table">
-
+                        <table class="orders-table income-table">
                             <thead>
-
                                 <tr>
-                                    <th>ORDER</th>
-                                    <th>CUSTOMER</th>
-                                    <th>PHONE</th>
-                                    <th>ITEMS</th>
-                                    <th>AMOUNT</th>
-                                    <th>STATUS</th>
-                                    <th>DATE</th>
+                                    <th>
+                                        CATEGORY
+                                    </th>
+                                    <th>
+                                        INCOME
+                                    </th>
                                 </tr>
-
                             </thead>
 
                             <tbody>
 
-                            <?php while (
-                                $order =
-                                mysqli_fetch_assoc($recent_orders)
-                            ): ?>
+                            <?php
+                            $category_total = 0;
 
-                                <?php
+                            while (
+                                $category =
+                                mysqli_fetch_assoc($category_income)
+                            ):
+                                $category_amount =
+                                    (float)$category['income'];
 
-                                $status =
-                                    $order['status'] ?? 'Pending';
-
-                                $status_class =
-                                    'status-default';
-
-                                if ($status == 'Pending') {
-
-                                    $status_class =
-                                        'status-pending';
-
-                                } elseif ($status == 'Completed') {
-
-                                    $status_class =
-                                        'status-completed';
-
-                                } elseif ($status == 'Cancelled') {
-
-                                    $status_class =
-                                        'status-cancelled';
-                                }
-
-                                ?>
+                                $category_total +=
+                                    $category_amount;
+                            ?>
 
                                 <tr>
-
-                                    <td class="order-id">
-
-                                        #
+                                    <td>
                                         <?php
-                                        echo $order['id'];
+                                        echo htmlspecialchars(
+                                            $category['category_name']
+                                        );
                                         ?>
-
                                     </td>
 
                                     <td>
-
-                                        <?php
-                                        echo htmlspecialchars(
-                                            $order['customer_name']
-                                        );
-                                        ?>
-
-                                    </td>
-
-                                    <td>
-
-                                        <?php
-                                        echo htmlspecialchars(
-                                            $order['phone_number']
-                                        );
-                                        ?>
-
-                                    </td>
-
-                                    <td class="food-items-cell">
-
-                                        <?php
-                                        echo htmlspecialchars(
-                                            $order['food_items']
-                                                ?: 'No Items'
-                                        );
-                                        ?>
-
-                                    </td>
-
-                                    <td>
-
                                         Rs.
                                         <?php
                                         echo number_format(
-                                            $order['total_price'],
+                                            $category_amount,
                                             2
                                         );
                                         ?>
-
                                     </td>
-
-                                    <td>
-
-                                        <form
-                                            method="POST"
-                                            class="status-form"
-                                        >
-
-                                            <input
-                                                type="hidden"
-                                                name="order_id"
-                                                value="<?php
-                                                echo $order['id'];
-                                                ?>"
-                                            >
-
-                                            <select
-                                                name="status"
-                                                class="status-select <?php echo $status_class; ?>"
-                                                onchange="this.form.submit()"
-                                            >
-
-                                                <option
-                                                    value="Pending"
-                                                    <?php echo ($status == 'Pending') ? 'selected' : ''; ?>
-                                                >
-                                                    Pending
-                                                </option>
-
-                                                <option
-                                                    value="Confirmed"
-                                                    <?php echo ($status == 'Confirmed') ? 'selected' : ''; ?>
-                                                >
-                                                    Confirmed
-                                                </option>
-
-                                                <option
-                                                    value="Preparing"
-                                                    <?php echo ($status == 'Preparing') ? 'selected' : ''; ?>
-                                                >
-                                                    Preparing
-                                                </option>
-
-                                                <option
-                                                    value="Ready"
-                                                    <?php echo ($status == 'Ready') ? 'selected' : ''; ?>
-                                                >
-                                                    Ready
-                                                </option>
-
-                                                <option
-                                                    value="Completed"
-                                                    <?php echo ($status == 'Completed') ? 'selected' : ''; ?>
-                                                >
-                                                    Completed
-                                                </option>
-
-                                                <option
-                                                    value="Cancelled"
-                                                    <?php echo ($status == 'Cancelled') ? 'selected' : ''; ?>
-                                                >
-                                                    Cancelled
-                                                </option>
-
-                                            </select>
-
-                                            <input
-                                                type="hidden"
-                                                name="update_status"
-                                                value="1"
-                                            >
-
-                                        </form>
-
-                                    </td>
-
-                                    <td>
-
-                                        <?php
-                                        echo date(
-                                            "M d, Y",
-                                            strtotime(
-                                                $order['order_date']
-                                            )
-                                        );
-                                        ?>
-
-                                    </td>
-
                                 </tr>
 
                             <?php endwhile; ?>
 
-                            </tbody>
+                                <tr class="income-total">
+                                    <td>
+                                        <strong>
+                                            TOTAL INCOME
+                                        </strong>
+                                    </td>
 
+                                    <td>
+                                        <strong>
+                                            Rs.
+                                            <?php
+                                            echo number_format(
+                                                $category_total,
+                                                2
+                                            );
+                                            ?>
+                                        </strong>
+                                    </td>
+                                </tr>
+
+                            </tbody>
                         </table>
 
                     <?php else: ?>
 
                         <p class="no-orders">
-                            No orders have been placed yet.
+                            No categories available.
                         </p>
 
                     <?php endif; ?>
@@ -640,13 +441,20 @@ if (!$recent_orders) {
                     <?php include "order.php"; ?>
                 </div>
 
-                <?php elseif ($page == 'order_details'): ?>
+            <?php elseif ($page == 'order_details'): ?>
 
-                 <div class="inner-page">
-                     <?php include "order_details.php"; ?>
+                <div class="inner-page">
+                    <?php include "order_details.php"; ?>
+                </div>
+
+            <?php elseif ($page == 'customers'): ?>
+
+                <div class="inner-page">
+                    <?php include "customers.php"; ?>
                 </div>
 
             <?php elseif ($page == 'reports'): ?>
+
                 <div class="inner-page">
                     <?php include "reports.php"; ?>
                 </div>
@@ -654,17 +462,10 @@ if (!$recent_orders) {
             <?php endif; ?>
 
         </div>
-
     </main>
-
 </div>
-
 </body>
-
 </html>
-
 <?php
-
 ob_end_flush();
-
 ?>
