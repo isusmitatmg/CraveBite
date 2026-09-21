@@ -1,22 +1,17 @@
 <?php
-
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
-
 include '../config/db.php';
 
-// Admin only
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: ../login.php");
     exit();
 }
 
-// Update order status
 if (isset($_POST['update_status'])) {
     $order_id = (int)$_POST['order_id'];
     $status = $_POST['status'];
-
     $allowed_statuses = [
         'Pending',
         'Confirmed',
@@ -31,24 +26,20 @@ if (isset($_POST['update_status'])) {
             $conn,
             "UPDATE orders SET status=? WHERE id=?"
         );
-
-        mysqli_stmt_bind_param(
-            $stmt,
-            "si",
-            $status,
-            $order_id
-        );
-
+        mysqli_stmt_bind_param($stmt, "si", $status, $order_id);
         mysqli_stmt_execute($stmt);
         mysqli_stmt_close($stmt);
     }
 }
 
-// Get orders with customer and food items
 $query = "SELECT
             o.id,
+            o.phone_number,
+            o.token,
             o.total_price,
             o.status,
+            o.payment_method,
+            o.payment_status,
             o.order_date,
             u.name AS customer_name,
             GROUP_CONCAT(
@@ -62,8 +53,12 @@ $query = "SELECT
           LEFT JOIN food f ON oi.food_id = f.id
           GROUP BY
             o.id,
+            o.phone_number,
+            o.token,
             o.total_price,
             o.status,
+            o.payment_method,
+            o.payment_status,
             o.order_date,
             u.name
           ORDER BY o.order_date DESC";
@@ -82,58 +77,59 @@ $statuses = [
     'Completed',
     'Cancelled'
 ];
-
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
-
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
     >
-
     <title>Manage Orders - CraveBite</title>
-
     <link rel="stylesheet" href="../css/admin-order.css">
 </head>
-
 <body>
-
     <div class="container">
-
-        <h2>
-            Customer Orders
-        </h2>
+        <h2>Customer Orders</h2>
 
         <table>
-
             <tr>
                 <th>Order ID</th>
                 <th>Customer</th>
+                <th>Phone</th>
+                <th>Token</th>
                 <th>Food Items</th>
                 <th>Total</th>
-                <th>Status</th>
+                <th>Payment</th>
+                <th>Payment Status</th>
+                <th>Order Status</th>
                 <th>Details</th>
                 <th>Update Status</th>
             </tr>
 
             <?php while ($row = mysqli_fetch_assoc($result)): ?>
-
                 <tr>
-
                     <td>
                         <?php echo $row['id']; ?>
                     </td>
 
                     <td>
                         <?php
-                        echo htmlspecialchars(
-                            $row['customer_name']
-                        );
+                        echo htmlspecialchars($row['customer_name']);
+                        ?>
+                    </td>
+
+                    <td>
+                        <?php
+                        echo htmlspecialchars($row['phone_number']);
+                        ?>
+                    </td>
+
+                    <td>
+                        <?php
+                        echo htmlspecialchars($row['token']);
                         ?>
                     </td>
 
@@ -146,7 +142,7 @@ $statuses = [
                     </td>
 
                     <td>
-                        Rs
+                        Rs.
                         <?php
                         echo number_format(
                             $row['total_price'],
@@ -156,23 +152,59 @@ $statuses = [
                     </td>
 
                     <td>
+                        <?php
+                        echo htmlspecialchars(
+                            $row['payment_method']
+                        );
+                        ?>
+                    </td>
+
+                    <td>
                         <span
-                            class="status status-<?php echo strtolower($row['status']); ?>"
+                            class="payment-status payment-<?php
+                            echo strtolower(
+                                str_replace(
+                                    ' ',
+                                    '-',
+                                    $row['payment_status']
+                                )
+                            );
+                            ?>"
                         >
-                            <?php echo $row['status']; ?>
+                            <?php
+                            echo htmlspecialchars(
+                                $row['payment_status']
+                            );
+                            ?>
                         </span>
                     </td>
 
                     <td>
-                        <a href="dashboard.php?page=order_details&id=<?php echo $row['id']; ?>">
+                        <span
+                            class="status status-<?php
+                            echo strtolower(
+                                $row['status']
+                            );
+                            ?>"
+                        >
+                            <?php
+                            echo htmlspecialchars($row['status']);
+                            ?>
+                        </span>
+                    </td>
+
+                    <td>
+                        <a
+                            href="dashboard.php?page=order_details&id=<?php
+                            echo $row['id'];
+                            ?>"
+                        >
                             View Details
                         </a>
                     </td>
 
                     <td>
-
                         <form method="POST">
-
                             <input
                                 type="hidden"
                                 name="order_id"
@@ -180,18 +212,18 @@ $statuses = [
                             >
 
                             <select name="status">
-
                                 <?php foreach ($statuses as $s): ?>
-
                                     <option
                                         value="<?php echo $s; ?>"
-                                        <?php echo ($s == $row['status']) ? 'selected' : ''; ?>
+                                        <?php
+                                        echo ($s == $row['status'])
+                                            ? 'selected'
+                                            : '';
+                                        ?>
                                     >
                                         <?php echo $s; ?>
                                     </option>
-
                                 <?php endforeach; ?>
-
                             </select>
 
                             <button
@@ -200,19 +232,11 @@ $statuses = [
                             >
                                 Update
                             </button>
-
                         </form>
-
                     </td>
-
                 </tr>
-
             <?php endwhile; ?>
-
         </table>
-
     </div>
-
 </body>
-
 </html>
