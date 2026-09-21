@@ -1,31 +1,24 @@
 <?php
 
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-include "../config/db.php";
-
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../login.php");
-    exit();
-}
-
 if (!isset($_GET['id'])) {
-    header("Location: order.php");
-    exit();
+    echo "<p>Order not found.</p>";
+    return;
 }
 
-$order_id = $_GET['id'];
+$order_id = (int) $_GET['id'];
 
 $order_stmt = mysqli_prepare(
     $conn,
     "SELECT orders.*, users.name
      FROM orders
-     JOIN users
-     ON orders.user_id = users.id
+     JOIN users ON orders.user_id = users.id
      WHERE orders.id = ?"
 );
+
+if (!$order_stmt) {
+    echo "<p>Unable to load order.</p>";
+    return;
+}
 
 mysqli_stmt_bind_param($order_stmt, "i", $order_id);
 mysqli_stmt_execute($order_stmt);
@@ -33,172 +26,158 @@ mysqli_stmt_execute($order_stmt);
 $order_result = mysqli_stmt_get_result($order_stmt);
 $order = mysqli_fetch_assoc($order_result);
 
+mysqli_stmt_close($order_stmt);
+
 if (!$order) {
-    header("Location: order.php");
-    exit();
+    echo "<p>Order not found.</p>";
+    return;
 }
 
 $item_stmt = mysqli_prepare(
     $conn,
     "SELECT order_items.*, food.name, food.image
      FROM order_items
-     JOIN food
-     ON order_items.food_id = food.id
+     JOIN food ON order_items.food_id = food.id
      WHERE order_items.order_id = ?"
 );
+
+if (!$item_stmt) {
+    echo "<p>Unable to load order items.</p>";
+    return;
+}
 
 mysqli_stmt_bind_param($item_stmt, "i", $order_id);
 mysqli_stmt_execute($item_stmt);
 
 $item_result = mysqli_stmt_get_result($item_stmt);
-
 ?>
 
-<!DOCTYPE html>
-<html>
+<div class="order-details-page">
 
-<head>
+    <div class="page-header">
 
-    <meta charset="UTF-8">
+        <div>
+            <h2>Order Details</h2>
+            <p>View complete information about this order.</p>
+        </div>
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+        <a href="dashboard.php?page=orders" class="back-btn">
+           ← Back to Orders
+       </a>
 
-    <title>Order Details | CraveBite</title>
-
-    <link
-        rel="stylesheet"
-        href="../css/admin-order-details.css"
-    >
-
-</head>
-
-<body>
-
-<div class="navbar">
-
-    <a href="dashboard.php?page=orders">
-        &larr; Manage Orders
-    </a>
-
-</div>
-
-<div class="container">
-
-    <h2>
-        Order Details
-    </h2>
+    </div>
+    <br>
 
     <div class="order-info">
 
-        <p>
+        <div class="info-row">
             <strong>Customer:</strong>
+            <span>
+                <?php echo htmlspecialchars($order['name']); ?>
+            </span>
+        </div>
 
-            <?php
-            echo htmlspecialchars($order['name']);
-            ?>
-        </p>
-
-        <p>
+        <div class="info-row">
             <strong>Order ID:</strong>
+            <span>
+                #<?php echo $order['id']; ?>
+            </span>
+        </div>
 
-            <?php
-            echo $order['id'];
-            ?>
-        </p>
+        <div class="info-row">
+            <strong>Token Number:</strong>
+            <span>
+                #<?php echo htmlspecialchars($order['token']); ?>
+            </span>
+        </div>
 
-        <p>
+        <div class="info-row">
             <strong>Date & Time:</strong>
+            <span>
+                <?php
+                echo date(
+                    "d M Y, h:i A",
+                    strtotime($order['order_date'])
+                );
+                ?>
+            </span>
+        </div>
 
-            <?php
-            echo date(
-                "d M Y, h:i A",
-                strtotime($order['order_date'])
-            );
-            ?>
-        </p>
-
-        <p>
+        <div class="info-row">
             <strong>Total:</strong>
+            <span>
+                Rs.
+                <?php echo number_format($order['total_price'], 2); ?>
+            </span>
+        </div>
 
-            Rs.
-            <?php
-            echo number_format($order['total_price'], 2);
-            ?>
-        </p>
-
-        <p>
+        <div class="info-row">
             <strong>Status:</strong>
-
-            <?php
-            echo htmlspecialchars($order['status']);
-            ?>
-        </p>
+            <span>
+                <?php echo htmlspecialchars($order['status']); ?>
+            </span>
+        </div>
 
     </div>
 
-    <table>
+    <div class="order-items">
 
-        <tr>
+        <h3>Ordered Food</h3>
 
-            <th>Image</th>
+        <table>
 
-            <th>Food</th>
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Food</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                </tr>
+            </thead>
 
-            <th>Quantity</th>
+            <tbody>
 
-            <th>Price</th>
+                <?php while ($item = mysqli_fetch_assoc($item_result)): ?>
 
-        </tr>
+                    <tr>
 
-        <?php while ($item = mysqli_fetch_assoc($item_result)): ?>
+                        <td>
+                            <img
+                                src="../uploads/<?php echo htmlspecialchars($item['image']); ?>"
+                                alt="Food Image"
+                            >
+                        </td>
 
-        <tr>
+                        <td>
+                            <?php echo htmlspecialchars($item['name']); ?>
+                        </td>
 
-            <td>
+                        <td>
+                            <?php echo $item['quantity']; ?>
+                        </td>
 
-                <img
-                    src="../uploads/<?php echo htmlspecialchars($item['image']); ?>"
-                    alt="Food Image"
-                >
+                        <td>
+                            Rs.
+                            <?php
+                            echo number_format(
+                                $item['price'],
+                                2
+                            );
+                            ?>
+                        </td>
 
-            </td>
+                    </tr>
 
-            <td>
+                <?php endwhile; ?>
 
-                <?php
-                echo htmlspecialchars($item['name']);
-                ?>
+            </tbody>
 
-            </td>
+        </table>
 
-            <td>
-
-                <?php
-                echo $item['quantity'];
-                ?>
-
-            </td>
-
-            <td>
-
-                Rs.
-                <?php
-                echo number_format($item['price'], 2);
-                ?>
-
-            </td>
-
-        </tr>
-
-        <?php endwhile; ?>
-
-    </table>
+    </div>
 
 </div>
 
-</body>
-
-</html>
+<?php
+mysqli_stmt_close($item_stmt);
+?>
