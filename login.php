@@ -233,9 +233,7 @@ if (isset($_POST['login'])) {
                 }
 
 
-                /* =========================
-                   NORMAL USER REDIRECT
-                ========================= */
+                /* NORMAL USER REDIRECT */
 
                 header("Location: menu.php");
 
@@ -272,10 +270,8 @@ if (isset($_POST['login'])) {
 
     <title>Login | CraveBite</title>
 
-    <link
-        rel="stylesheet"
-        href="css/login.css"
-    >
+       <link rel="stylesheet" href="css/Login.css">
+    
 
 </head>
 
